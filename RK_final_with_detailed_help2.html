@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<!-- Версия 2.5: пути к схемам ведут в папку img, добавлена кнопка возврата -->
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Калькулятор параметров радиографического контроля - ГОСТ Р 50.05.07-2018</title>
+    <style>
+        * { box-sizing: border-box; margin:0; padding:0; font-family: Arial, sans-serif;}
+        body { background:#f5f5f5; color:#333; font-size:14px; line-height:1.4; }
+        .container { max-width:1000px; margin:20px auto; padding:15px; }
+        header { background:linear-gradient(135deg,#2c3e50,#34495e); color:#fff; padding:18px 10px; border-radius:8px; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.1); position: relative; }
+        header .organization { font-weight:700; font-size:16px; }
+        header .department { font-size:13px; margin-bottom:6px; opacity:0.95; }
+        h1 { font-size:20px; margin-top:6px; }
+        .calculator { background:#fff; padding:18px; border-radius:8px; margin-top:18px; box-shadow:0 2px 4px rgba(0,0,0,0.05); }
+        .section-title { font-size:16px; color:#234; margin-bottom:12px; border-bottom:2px solid #3498db; padding-bottom:8px; }
+        .form-row { display:flex; gap:12px; margin-bottom:12px; }
+        .form-col { flex:1; }
+        label { display:block; margin-bottom:6px; font-weight:600; color:#234; font-size:13px; }
+        input, select { width:100%; padding:8px; border:2px solid #e0e0e0; border-radius:6px; font-size:14px; }
+        .btn { display:inline-block; background:#3498db; color:#fff; padding:10px 14px; border-radius:6px; border:none; cursor:pointer; font-weight:700; margin-right:8px; margin-bottom:8px; }
+        .btn:hover { background:#2b86bf; }
+        .btn-print { background:#27ae60; }
+        .btn-print:hover { background:#1f8a4f; }
+        .btn-reset { background:#e74c3c; }
+        .btn-reset:hover { background:#c0392b; }
+        .btn-muted { background:#95a5a6; }
+        .btn-back { background:#9b59b6; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); }
+        .btn-back:hover { background:#8e44ad; }
+        .results { margin-top:16px; background:#f8f9fa; padding:14px; border-radius:8px; border-left:4px solid #3498db; }
+        .results-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .result-item { background:#fff; padding:10px; border-radius:6px; border-left:4px solid #27ae60; }
+        .result-label { font-weight:700; color:#234; font-size:13px; }
+        .result-value { color:#c0392b; margin-top:6px; font-size:14px; }
+        .info, .warning { padding:10px; border-radius:6px; margin-top:10px; font-size:13px; }
+        .info { background:#d1ecf1; border:1px solid #bee5eb; color:#0c5460; }
+        .warning { background:#fff3cd; border:1px solid #ffeaa7; color:#856404; }
+        .help { display:none; background:#eef6ff; border:1px solid #99c2ff; color:#003366; padding:14px; border-radius:6px; margin-top:12px; font-size:13px; }
+        .help h3 { margin-bottom:8px; }
+        .help pre { white-space:pre-wrap; background:#fff; padding:10px; border-radius:6px; border:1px solid #e6eefc; font-family:monospace; font-size:13px; color:#112; }
+        .help .actions { margin-top:10px; }
+        .scheme-image { max-width:100%; height:auto; border:1px solid #ccc; border-radius:6px; margin:10px 0; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+        .image-container { text-align:center; margin:15px 0; page-break-inside:avoid; }
+        .image-caption { font-style:italic; color:#666; margin-top:5px; font-size:12px; }
+        .no-print { }
+        @media print {
+            .no-print { display:none !important; }
+            .help { page-break-after:always; }
+            /* Уменьшаем изображение в результатах в 2 раза */
+            #results-scheme-image-container .scheme-image { 
+                max-width: 70% !important; 
+                height: auto !important;
+                transform: scale(0.8);
+                transform-origin: center center;
+            }
+            /* Изображение в справке оставляем как есть */
+            #help-scheme-image-container .scheme-image { 
+                max-width: 80% !important; 
+            }
+            .image-container { page-break-inside:avoid; margin-bottom:10px; }
+            /* Уменьшаем отступы для экономии места */
+            .container { padding: 5px; margin: 0; max-width: 100%; }
+            .calculator { padding: 10px; margin-top: 10px; }  
+            .results { padding: 10px; margin-top: 10px; }
+            .result-item { padding: 6px; margin-bottom: 5px; }
+            .section-title { font-size: 14px; margin-bottom: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <!-- Кнопка возврата на главную страницу -->
+            <button class="btn btn-back no-print" onclick="goToMainPage()">← На главную</button>
+            <h1>Калькулятор параметров радиографического контроля</h1>
+            <div class="subtitle">ГОСТ Р 50.05.07-2018 — Приложение Г</div>
+        </header>
+
+        <div class="calculator" role="main">
+            <h2 class="section-title">Исходные данные</h2>
+
+            <div class="input-section">
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="scheme">Схема просвечивания</label>
+                        <select id="scheme" aria-label="Схема просвечивания">
+                            <option value="4_6">Чертёж 1 и 2</option>
+                            <option value="5a">Чертёж 3а</option>
+                            <option value="5b">Чертёж 3б</option>
+                            <option value="5v">Чертёж 3в</option>
+                            <option value="5g">Чертёж 3г</option>
+                            <option value="5d">Чертёж 3д</option>
+                            <option value="5e">Чертёж 3е</option>
+                            <option value="5zh">Чертёж 3ж</option>
+                            <option value="5z">Чертёж 3и</option>
+                        </select>
+                    </div>
+                    <div class="form-col">
+                        <label for="d_focus">Размер фокусного пятна Φ, мм</label>
+                        <input type="number" id="d_focus" step="0.1" min="0.1" value="3.0" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="h_thickness">Радиационная толщина s, мм</label>
+                        <input type="number" id="h_thickness" step="0.1" min="0.1" value="9" />
+                    </div>
+                    <div class="form-col">
+                        <label for="z_sensitivity">Требуемая чувствительность K, мм</label>
+                        <input type="number" id="z_sensitivity" step="0.01" min="0.01" value="0.2" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="d_outer">Наружный диаметр D, мм</label>
+                        <input type="number" id="d_outer" step="1" min="1" value="159" />
+                    </div>
+                    <div class="form-col">
+                        <label for="d_inner">Внутренний диаметр d, мм</label>
+                        <input type="number" id="d_inner" step="1" min="1" value="150" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="no-print" style="margin-top:12px;">
+                <button class="btn" onclick="calculate()">Рассчитать параметры</button>
+                <button class="btn btn-print" onclick="printAll()">Печать результатов</button>
+                <button class="btn btn-reset" onclick="resetForm()">Сбросить данные</button>
+                <button class="btn" onclick="toggleHelp()">Справка о расчётах</button>
+                <!-- Дополнительная кнопка возврата внизу -->
+                <button class="btn btn-back" onclick="goToMainPage()">На главную страницу</button>
+            </div>
+
+            <div id="results" class="results" style="display:none;" aria-live="polite">
+                <h3 class="section-title">Результаты расчёта</h3>
+
+                <div class="info no-print">
+                    <strong>Информация о расчёте:</strong><br />
+                    Схема: <span id="result-scheme"></span><br />
+                    Дата расчёта: <span id="calculation-date"></span>
+                </div>
+
+                <div id="result-content"></div>
+                
+                <!-- Контейнер для изображения схемы в результатах -->
+                <div id="results-scheme-image-container" class="image-container">
+                    <!-- Изображение будет вставлено здесь динамически -->
+                </div>
+            </div>
+
+            <!-- Справка и подробный лог расчёта -->
+            <div id="help-block" class="help no-print" aria-hidden="true">
+                <h3>Справка и подробный отчёт о расчёте</h3>
+                <div id="help-summary" style="margin-bottom:8px; font-size:13px;"></div>
+
+                <!-- Контейнер для изображения схемы в справке -->
+                <div id="help-scheme-image-container" class="image-container">
+                    <!-- Изображение будет вставлено здесь динамически -->
+                </div>
+
+                <div style="margin-top:8px;">
+                    <strong>Подробный  отчёт:</strong>
+                    <pre id="help-log" aria-label="Подробный отчёт о расчёте">Здесь появится лог расчёта после нажатия "Рассчитать параметры".</pre>
+                </div>
+
+                <div class="actions" style="margin-top:10px;">
+                    <button class="btn" onclick="downloadHelp()">Сохранить справку в TXT</button>
+                    <button class="btn btn-print" onclick="printHelp()">Распечатать справку</button>
+                    <button class="btn btn-muted" onclick="toggleHelp()">Закрыть справку</button>
+                    <button class="btn btn-back" onclick="goToMainPage()">На главную</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+/* === Табличные данные ГОСТ (сокращённый/оригинальный набор из вашего кода) === */
+const TABLE_DATA_5a = {
+    0.50: {10: 14.2, 9: 3.3},
+    0.55: {8: 27.3, 9: 3.4, 10: 1.8},
+    0.60: {8: 4.2, 9: 1.9, 10: 1.2},
+    0.65: {7: 7.7, 8: 2.2, 9: 1.3, 10: 0.9},
+    0.70: {7: 3.1, 8: 1.5, 9: 1.0, 10: 0.7},
+    0.75: {6: 7.1, 7: 1.9, 8: 1.1, 9: 0.8, 10: 0.6},
+    0.80: {6: 3.2, 7: 1.4, 8: 0.9, 9: 0.7, 10: 0.5},
+    0.85: {5: 18.2, 6: 2.0, 7: 1.0, 8: 0.7, 9: 0.5, 10: 0.4},
+    0.90: {5: 4.7, 6: 1.5, 7: 0.8, 8: 0.6, 9: 0.5, 10: 0.4},
+    0.95: {5: 2.6, 6: 1.1, 7: 0.7, 8: 0.5, 9: 0.4, 10: 0.3}
+};
+
+const TABLE_DATA_5b = {
+    0.40: {8: 10.4, 9: 3.2, 10: 2.0},
+    0.45: {7: 18.2, 8: 3.3, 9: 2.0},
+    0.50: {7: 3.8, 8: 2.2, 9: 2.0},
+    0.55: {6: 6.9, 7: 2.8, 8: 2.0},
+    0.60: {6: 4.0, 7: 2.0},
+    0.65: {6: 2.5, 7: 2.0},
+    0.70: {5: 9.8, 6: 2.0},
+    0.75: {5: 4.3, 6: 2.0},
+    0.80: {5: 3.0, 6: 2.0},
+    0.85: {5: 2.3, 6: 2.0},
+    0.90: {5: 2.0},
+    0.95: {4: 18.3, 5: 2.0}
+};
+
+const TABLE_DATA_5g = {
+    0.50: {4: ["≤", 0.4], 5: ["≤", 1.4], 6: ["≤", 12.0], 7: [">", 12.0]},
+    0.55: {4: ["≤", 0.6], 5: ["≤", 2.6], 6: [">", 2.6]},
+    0.60: {3: ["≤", 0.1], 4: ["≤", 0.9], 5: ["≤", 5.8], 6: [">", 5.8]},
+    0.65: {3: ["≤", 0.2], 4: ["≤", 1.3], 5: ["≤", 40.0], 6: [">", 40.0]},
+    0.70: {3: ["≤", 0.3], 4: ["≤", 1.9], 5: [">", 1.9]},
+    0.75: {3: ["≤", 0.4], 4: ["≤", 3.0], 5: [">", 3.0]},
+    0.80: {3: ["≤", 0.5], 4: ["≤", 4.7], 5: [">", 4.7]},
+    0.85: {3: ["≤", 0.6], 4: ["≤", 9.8], 5: [">", 9.8]},
+    0.90: {3: ["≤", 1.0], 4: [">", 1.0]}
+};
+
+/* === Вспомогательные функции расчёта === */
+function getC(phi, K) {
+    const Φ = Number(phi);
+    const k = Number(K);
+    if (isNaN(Φ) || isNaN(k) || k === 0) return 4;
+    const ratio = Φ / k;
+    return (ratio >= 2) ? (2 * Φ / k) : 4;
+}
+
+function findClosestKey(table, value) {
+    return Object.keys(table).reduce((prev, curr) => {
+        return (Math.abs(curr - value) < Math.abs(prev - value)) ? curr : prev;
+    });
+}
+
+function getSchemeName(scheme) {
+    const names = {
+        '4_6': 'Чертёж 1 и 2',
+        '5a': 'Чертёж 3а',
+        '5b': 'Чертёж 3б',
+        '5v': 'Чертёж 3в',
+        '5g': 'Чертёж 3г',
+        '5d': 'Чертёж 3д',
+        '5e': 'Чертёж 3е',
+        '5zh': 'Чертёж 3ж',
+        '5z' : 'Чертёж 3и'
+    };
+    return names[scheme] || scheme;
+}
+
+/* === Функция для вставки изображения схемы === */
+function insertSchemeImages(scheme) {
+    const schemeName = getSchemeName(scheme);
+    // Изменён путь: теперь изображения берутся из папки img
+    const imageName = `img/scheme_${scheme}.png`;
+    
+    // HTML для изображения с обработкой ошибок
+    const imageHtml = `
+        <img src="${imageName}" alt="Схема ${schemeName}" class="scheme-image" 
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <div class="image-caption">Схема: ${schemeName}</div>
+    `;
+    
+    // Вставляем в результаты
+    document.getElementById('results-scheme-image-container').innerHTML = imageHtml;
+    
+    // Вставляем в справку
+    document.getElementById('help-scheme-image-container').innerHTML = imageHtml;
+}
+
+/* === Функция возврата на главную страницу === */
+function goToMainPage() {
+    // Замените 'index.html' на актуальный путь к вашей главной странице
+    window.location.href = 'index.html';
+}
+
+/* === Основная функция — расчёт и логирование промежуточных значений === */
+function calculate() {
+    // Считываем входные данные
+    const scheme = document.getElementById('scheme').value;
+    const Φ = parseFloat(document.getElementById('d_focus').value);
+    const s = parseFloat(document.getElementById('h_thickness').value);
+    const K = parseFloat(document.getElementById('z_sensitivity').value);
+    const D = parseFloat(document.getElementById('d_outer').value);
+    const d = parseFloat(document.getElementById('d_inner').value);
+
+    // Проверки
+    if (!Φ || !s || !K || !D || !d) {
+        alert('Пожалуйста, заполните все поля корректными числовыми значениями.');
+        return;
+    }
+    if (d >= D) {
+        alert('Внутренний диаметр d не может быть больше или равен наружному диаметру D.');
+        return;
+    }
+
+    // Вставляем изображения схем
+    insertSchemeImages(scheme);
+
+    // Объект для хранения промежуточных данных и итогов
+    const log = {
+        scheme,
+        schemeName: getSchemeName(scheme),
+        inputs: {Φ, s, K, D, d, m: d / D},
+        steps: [],
+        resultsHtml: '',
+        resultsData: {}
+    };
+
+    // Выполнение соответствующего расчёта (и заполнение log.steps)
+    let resultHtml = '';
+    switch(scheme) {
+        case '4_6':
+            resultHtml = calculateScheme4_6(Φ, K, s, log);
+            break;
+        case '5a':
+            resultHtml = calculateScheme5a(D, d, Φ, K, log);
+            break;
+        case '5b':
+            resultHtml = calculateScheme5b(D, d, Φ, K, log);
+            break;
+        case '5v':
+            resultHtml = calculateScheme5v(D, d, Φ, K, log);
+            break;
+        case '5g':
+            resultHtml = calculateScheme5g(D, d, Φ, K, log);
+            break;
+        case '5d':
+            resultHtml = calculateScheme5d(D, d, Φ, K, log);
+            break;
+        case '5e':
+            resultHtml = "Для схемы 3е расчёт не производится. Панорамное просвечивание.";
+            log.steps.push("Схема 3е — панорамное просвечивание, расчёт не выполняется.");
+            break;
+        case '5zh':
+            resultHtml = calculateScheme5zh(D, d, Φ, K, log);
+            break;
+        case '5z':
+            resultHtml = "Для схемы 3и расчёт не производится.";
+            log.steps.push("Схема 3и — расчёт не выполняется.");
+            break;
+        default:
+            resultHtml = "Выбранная схема не поддерживается.";
+            log.steps.push("Схема не поддерживается.");
+    }
+
+    // Обновление интерфейса результатов
+    document.getElementById('result-scheme').textContent = log.schemeName;
+    document.getElementById('calculation-date').textContent = new Date().toLocaleString();
+    document.getElementById('result-content').innerHTML = resultHtml;
+    document.getElementById('results').style.display = 'block';
+
+    // Сохранение результатов в log
+    log.resultsHtml = resultHtml;
+
+    // Формирование текста справки (читабельный отчёт)
+    const helpText = buildHelpText(log);
+    const helpHtmlSummary = buildHelpHtmlSummary(log);
+
+    document.getElementById('help-log').textContent = helpText;
+    document.getElementById('help-summary').innerHTML = helpHtmlSummary;
+}
+
+/* === Функции расчёта по схемам (обновлены для логирования) === */
+
+function calculateScheme4_6(Φ, K, s, log) {
+    const C = getC(Φ, K);
+    log.steps.push(`1) Вычислен коэффициент C: C = ${C.toFixed(4)} (getC(Φ=${Φ}, K=${K}))`);
+    const f = C * s;
+    log.steps.push(`2) Фокусное расстояние f = C * s = ${C.toFixed(4)} * ${s} = ${f.toFixed(3)} мм`);
+    log.resultsData = {C, f};
+    return `
+        <div class="results-grid">
+            <div class="result-item"><div class="result-label">Коэффициент C:</div><div class="result-value">${C.toFixed(2)}</div></div>
+            <div class="result-item"><div class="result-label">Фокусное расстояние f:</div><div class="result-value">${f.toFixed(1)} мм</div></div>
+        </div>
+    `;
+}
+
+function calculateScheme5a(D, d, Φ, K, log) {
+    const m = d / D;
+    log.steps.push(`m = d / D = ${d} / ${D} = ${m.toFixed(4)}`);
+    const C = getC(Φ, K);
+    log.steps.push(`C = getC(Φ=${Φ}, K=${K}) = ${C.toFixed(4)}`);
+    const f = 0.7 * C * (1 - m) * D;
+    log.steps.push(`f = 0.7 * C * (1 - m) * D = 0.7 * ${C.toFixed(4)} * (1 - ${m.toFixed(4)}) * ${D} = ${f.toFixed(3)} мм`);
+    const fD = f / D;
+    log.steps.push(`f / D = ${f.toFixed(3)} / ${D} = ${fD.toFixed(4)}`);
+
+    // Таблица
+    const closest_m = findClosestKey(TABLE_DATA_5a, m);
+    log.steps.push(`Выбран ближайший m в таблице: ${closest_m}`);
+    const tableRow = TABLE_DATA_5a[closest_m];
+
+    let N = 10;
+    for (const [exposures, min_fD] of Object.entries(tableRow).sort((a, b) => a[0] - b[0])) {
+        if (fD >= min_fD) {
+            N = parseInt(exposures);
+            log.steps.push(`По таблице: при f/D >= ${min_fD} выбрано N = ${N}`);
+            break;
+        }
+    }
+    const angle = 360 / N;
+    const L = (2 * Math.PI * (D / 2)) / N;
+    log.resultsData = {C, f, fD, m, N, angle, L};
+    return `
+        <div class="results-grid">
+            <div class="result-item"><div class="result-label">Коэффициент C:</div><div class="result-value">${C.toFixed(2)}</div></div>
+            <div class="result-item"><div class="result-label">Фокусное расстояние f:</div><div class="result-value">${f.toFixed(1)} мм</div></div>
+            <div class="result-item"><div class="result-label">Экспозиций N:</div><div class="result-value">${N}</div></div>
+            <div class="result-item"><div class="result-label">Угол между экспозициями:</div><div class="result-value">${angle.toFixed(0)}°</div></div>
+            <div class="result-item"><div class="result-label">Длина участка L:</div><div class="result-value">${L.toFixed(0)} мм</div></div>
+        </div>
+    `;
+}
+
+function calculateScheme5b(D, d, Φ, K, log) {
+    const m = d / D;
+    log.steps.push(`m = d / D = ${d} / ${D} = ${m.toFixed(4)}`);
+    const C = getC(Φ, K);
+    log.steps.push(`C = getC(Φ=${Φ}, K=${K}) = ${C.toFixed(4)}`);
+    const f = 0.5 * C * D;
+    log.steps.push(`f = 0.5 * C * D = 0.5 * ${C.toFixed(4)} * ${D} = ${f.toFixed(3)} мм`);
+    const fD = f / D;
+    log.steps.push(`f / D = ${f.toFixed(3)} / ${D} = ${fD.toFixed(4)}`);
+
+    const closest_m = findClosestKey(TABLE_DATA_5b, m);
+    log.steps.push(`Выбран ближайший m в таблице: ${closest_m}`);
+    const tableRow = TABLE_DATA_5b[closest_m];
+
+    let N = 10;
+    for (const [exposures, min_fD] of Object.entries(tableRow).sort((a, b) => a[0] - b[0])) {
+        if (min_fD !== null && fD >= min_fD) {
+            N = parseInt(exposures);
+            log.steps.push(`По таблице: при f/D >= ${min_fD} выбрано N = ${N}`);
+            break;
+        }
+    }
+    const L = D / N;
+    log.resultsData = {C, f, fD, m, N, L};
+    return `
+        <div class="results-grid">
+            <div class="result-item"><div class="result-label">Фокусное расстояние f:</div><div class="result-value">${f.toFixed(1)} мм</div></div>
+            <div class="result-item"><div class="result-label">Экспозиций N:</div><div class="result-value">${N}</div></div>
+            <div class="result-item"><div class="result-label">Длина участка L:</div><div class="result-value">${L.toFixed(0)} мм</div></div>
+        </div>
+    `;
+}
+
+function calculateScheme5v(D, d, Φ, K, log) {
+    const C = getC(Φ, K);
+    log.steps.push(`C = getC(Φ=${Φ}, K=${K}) = ${C.toFixed(4)}`);
+    const f = C * D;
+    log.steps.push(`f = C * D = ${C.toFixed(4)} * ${D} = ${f.toFixed(3)} мм`);
+    const N = 2;
+    const angle = 180 / N;
+    const L = (2 * Math.PI * (D / 2)) / N;
+    log.resultsData = {C, f, N, angle, L};
+    return `
+        <div class="results-grid">
+            <div class="result-item"><div class="result-label">Фокусное расстояние f:</div><div class="result-value">${f.toFixed(1)} мм</div></div>
+            <div class="result-item"><div class="result-label">Экспозиций N:</div><div class="result-value">${N}</div></div>
+            <div class="result-item"><div class="result-label">Угол между экспозициями:</div><div class="result-value">${angle}°</div></div>
+            <div class="result-item"><div class="result-label">Длина участка L:</div><div class="result-value">${L.toFixed(0)} мм</div></div>
+        </div>
+    `;
+}
+
+function calculateScheme5g(D, d, Φ, K, log) {
+    const m = d / D;
+    log.steps.push(`m = d / D = ${d} / ${D} = ${m.toFixed(4)}`);
+    const C = getC(Φ, K);
+    log.steps.push(`C = getC(Φ=${Φ}, K=${K}) = ${C.toFixed(4)}`);
+    const f = 0.5 * (1.5 * C * (D - d) - D);
+    log.steps.push(`f (оценочно) = 0.5*(1.5*C*(D-d) - D) = ${f.toFixed(3)} мм`);
+    const fD = f / D;
+    log.steps.push(`f / D = ${f.toFixed(3)} / ${D} = ${fD.toFixed(4)}`);
+
+    return calculateWithTable5g(D, m, fD, "5г", log);
+}
+
+function calculateScheme5d(D, d, Φ, K, log) {
+    const m = d / D;
+    log.steps.push(`m = d / D = ${d} / ${D} = ${m.toFixed(4)}`);
+    const C = getC(Φ, K);
+    log.steps.push(`C = getC(Φ=${Φ}, K=${K}) = ${C.toFixed(4)}`);
+    const f = 0.5 * (C * (1.4 * D - d) - D);
+    log.steps.push(`f (оценочно) = 0.5*(C*(1.4*D - d) - D) = ${f.toFixed(3)} мм`);
+    const fD = f / D;
+    log.steps.push(`f / D = ${f.toFixed(3)} / ${D} = ${fD.toFixed(4)}`);
+
+    return calculateWithTable5g(D, m, fD, "5д", log);
+}
+
+function calculateScheme5zh(D, d, Φ, K, log) {
+    const m = d / D;
+    const C = getC(Φ, K);
+    log.steps.push(`m = ${m.toFixed(4)}; C = ${C.toFixed(4)}`);
+    const f_min_required = 0.5 * C * (1 - m) * D;
+    log.steps.push(`Минимальное требуемое f = 0.5 * C * (1 - m) * D = ${f_min_required.toFixed(3)} мм`);
+    if (f_min_required > d) {
+        log.steps.push(`Условие не выполняется: ${f_min_required.toFixed(3)} мм > d (${d} мм)`);
+        return `
+            <div class="warning"><strong>❌ Условие не выполняется</strong><br>
+            f ≥ ${f_min_required.toFixed(1)} мм > d = ${d} мм<br>Используйте источник с меньшим фокусным пятном</div>
+        `;
+    }
+    log.resultsData = {f_min_required};
+    return `
+        <div class="result-item"><div class="result-label">Минимальное расстояние f:</div><div class="result-value">≥ ${f_min_required.toFixed(1)} мм</div></div>
+        <div class="info">Определите f исходя из диаметра ${d} мм. Количество участков — опытным путём.</div>
+    `;
+}
+
+/* === Вспомогательная обработка таблицы 5г/5д === */
+function calculateWithTable5g(D, m, fD, schemeName, log) {
+    const closest_m = findClosestKey(TABLE_DATA_5g, m);
+    log.steps.push(`Выбран ближайший m в таблице 3г: ${closest_m}`);
+    const tableRow = TABLE_DATA_5g[closest_m];
+
+    let N = null;
+    for (const [exposures, condition] of Object.entries(tableRow).sort((a,b)=>a[0]-b[0])) {
+        if (!condition) continue;
+        const [operator, threshold] = condition;
+        log.steps.push(`Проверка условия для N=${exposures}: f/D ${operator} ${threshold}`);
+        if ((operator === "≥" && fD >= threshold) || (operator === "≤" && fD <= threshold) || (operator === ">" && fD > threshold)) {
+            N = parseInt(exposures);
+            log.steps.push(`Условие выполнено => N = ${N}`);
+            break;
+        }
+    }
+    if (N === null) {
+        log.steps.push(`N не найдено для m=${m.toFixed(4)} и f/D=${fD.toFixed(4)}`);
+        return `<div class="warning">Для m=${m.toFixed(3)} и f/D=${fD.toFixed(3)} N не найдено</div>`;
+    }
+    const angle = 360 / N;
+    const L = (2*Math.PI*(D/2))/N;
+    log.resultsData = {fD, m, N, angle, L};
+    return `
+        <div class="results-grid">
+            <div class="result-item"><div class="result-label">Фокусное расстояние f: не менее</div><div class="result-value">${(fD*D).toFixed(1)} мм</div></div>
+            <div class="result-item"><div class="result-label">Экспозиций N:</div><div class="result-value">${N}</div></div>
+            <div class="result-item"><div class="result-label">Угол между экспозициями:</div><div class="result-value">${angle.toFixed(0)}°</div></div>
+            <div class="result-item"><div class="result-label">Длина участка L:</div><div class="result-value">${L.toFixed(0)} мм</div></div>
+        </div>
+    `;
+}
+
+/* === Формирование читабельного текста справки === */
+function buildHelpText(log) {
+    const lines = [];
+    lines.push(`Технический отчёт`);
+    lines.push(`Дата: ${new Date().toLocaleString()}`);
+    lines.push(`Схема: ${log.schemeName}`);
+    lines.push('');
+    lines.push('Исходные данные:');
+    lines.push(`  Φ (фокусное пятно) = ${log.inputs.Φ} мм`);
+    lines.push(`  s (радиационная толщина) = ${log.inputs.s} мм`);
+    lines.push(`  K (требуемая чувствительность) = ${log.inputs.K} мм`);
+    lines.push(`  D (наружный диаметр) = ${log.inputs.D} мм`);
+    lines.push(`  d (внутренний диаметр) = ${log.inputs.d} мм`);
+    lines.push(`  m = d / D = ${log.inputs.m.toFixed(4)}`);
+    lines.push('');
+    lines.push('Ход расчёта:');
+    log.steps.forEach((st, idx) => {
+        lines.push(` ${idx+1}. ${st}`);
+    });
+    lines.push('');
+    lines.push('Полученные промежуточные и итоговые значения:');
+    const rd = log.resultsData || {};
+    for (const [k,v] of Object.entries(rd)) {
+        if (typeof v === 'number') lines.push(`  ${k} = ${v.toFixed(4)}`);
+        else lines.push(`  ${k} = ${v}`);
+    }
+    lines.push('');
+    lines.push('Примечание: Для окончательных решений сверяйтесь с актуальной методической документацией.');
+    return lines.join('\n');
+}
+
+/* === Короткая HTML-версия справки (summary) === */
+function buildHelpHtmlSummary(log) {
+    const inputs = log.inputs;
+    const rd = log.resultsData;
+    let html = `<strong>Ввод:</strong> Φ=${inputs.Φ} мм, s=${inputs.s} мм, K=${inputs.K} мм, D=${inputs.D} мм, d=${inputs.d} мм<br>`;
+    if (rd && Object.keys(rd).length) {
+        html += `<strong>Ключевые промежуточные значения:</strong> `;
+        const parts = [];
+        if (rd.C !== undefined) parts.push(`C=${rd.C.toFixed(3)}`);
+        if (rd.f !== undefined) parts.push(`f=${rd.f.toFixed(1)} мм`);
+        if (rd.N !== undefined) parts.push(`N=${rd.N}`);
+        if (rd.angle !== undefined) parts.push(`угол=${rd.angle.toFixed(1)}°`);
+        if (rd.L !== undefined) parts.push(`L=${rd.L.toFixed(0)} мм`);
+        html += parts.join('; ');
+    }
+    return html;
+}
+
+/* === Экспорт справки в TXT === */
+function downloadHelp() {
+    const text = document.getElementById('help-log').textContent || '';
+    if (!text) { alert('Сначала выполните расчёт, чтобы сформировать справку.'); return; }
+    const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+    const filename = `help_calc_${new Date().toISOString().replace(/[:.]/g,'-')}.txt`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+/* === Печать справки (отдельное окно) === */
+function printHelp() {
+    const helpText = document.getElementById('help-log').textContent || '';
+    const schemeName = document.getElementById('result-scheme').textContent;
+    const scheme = document.getElementById('scheme').value;
+    // Изменён путь для печати
+    const imageName = `img/scheme_${scheme}.png`;
+    
+    if (!helpText) { alert('Сначала выполните расчёт, чтобы сформировать справку.'); return; }
+    
+    const title = 'Справка по расчёту';
+    const win = window.open('', '_blank');
+    const doc = win.document;
+    doc.open();
+    doc.write(`<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
+        <style>body{font-family:Arial,Helvetica,sans-serif; padding:20px; color:#111} 
+        pre{white-space:pre-wrap; font-size:13px; background:#fff; padding:12px; border:1px solid #ddd; border-radius:6px;} 
+        h1{font-size:18px} 
+        .scheme-image{max-width:90%; height:auto; border:1px solid #ccc; border-radius:6px; margin:10px 0;}
+        .image-container{text-align:center; margin:15px 0; page-break-inside:avoid;}
+        .image-caption{font-style:italic; color:#666; margin-top:5px; font-size:12px;}</style>
+        </head><body>
+        <h1>${title}</h1>
+        <div class="image-container">
+            <img src="${imageName}" alt="Схема ${schemeName} ГОСТ Р 50.05.07-2018" class="scheme-image">
+            <div class="image-caption">Схема: ${schemeName} ГОСТ Р 50.05.07-2018</div>
+        </div>
+        <pre>${escapeHtml(helpText)}</pre>
+        <p style="margin-top:12px; font-size:12px; color:#555;">Распечатайте этот документ (Ctrl+P) или закройте окно.</p></body></html>`);
+    doc.close();
+    win.focus();
+    // Delay to ensure content is rendered
+    setTimeout(()=>{ win.print(); }, 500);
+}
+
+/* === Полезные утилиты === */
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function resetForm() {
+    document.getElementById('d_focus').value = '3.0';
+    document.getElementById('h_thickness').value = '9';
+    document.getElementById('z_sensitivity').value = '0.2';
+    document.getElementById('d_outer').value = '159';
+    document.getElementById('d_inner').value = '150';
+    document.getElementById('results').style.display = 'none';
+    // hide help as well
+    const hb = document.getElementById('help-block');
+    if (hb) { hb.style.display = 'none'; hb.setAttribute('aria-hidden','true'); }
+}
+
+function toggleHelp() {
+    const hb = document.getElementById('help-block');
+    if (!hb) return;
+    const visible = hb.style.display === 'block';
+    hb.style.display = visible ? 'none' : 'block';
+    hb.setAttribute('aria-hidden', visible ? 'true' : 'false');
+    if (!visible) hb.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function printAll() {
+    // show print-only sections if needed and call window.print()
+    window.print();
+}
+
+</script>
+</body>
+</html>

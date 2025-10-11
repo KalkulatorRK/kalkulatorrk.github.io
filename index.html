@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    
+    <!-- SEO мета-теги -->
+    <title>Калькулятор РК - Расчёты параметров радиографического контроля онлайн</title>
+    <meta name="description" content="Профессиональные калькуляторы для радиографического контроля: расчёт времени экспозиции, активности источников, параметров РК по ГОСТ Р 50.05.07. Онлайн инструменты для специалистов НК, дефектоскопистов.">
+    <meta name="keywords" content="расчёт экспозиции, расчёт активности источника, время экспозиции, просветка, радиографический контроль, онлайн инструменты для специалистов НК, дефектоскопист, технологическая карта РК, техкарта, параметры РК, фокусное расстояние, фокусное пятно, селен, иридий, ГОСТ Р 50.05.07, рассчитать фокус, ЛНК, неразрушающий контроль">
+    <meta name="author" content="Калькулятор РК">
+    
+    <!-- Яндекс.Вебмастер -->
+    <meta name="yandex-verification" content="your-yandex-verification-code" />
+    
+    <!-- Google Search Console -->
+    <meta name="google-site-verification" content="your-google-verification-code" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Калькулятор РК - Профессиональные расчёты радиографического контроля">
+    <meta property="og:description" content="Онлайн калькуляторы для специалистов неразрушающего контроля: расчёт параметров РК, времени экспозиции, активности источников">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com">
+    
+    <!-- Canonical -->
+    <link rel="canonical" href="https://yourdomain.com">
+    
+    <!-- JSON-LD структурированные данные -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Калькулятор РК",
+        "description": "Профессиональные онлайн калькуляторы для расчёта параметров радиографического контроля",
+        "url": "https://yourdomain.com",
+        "applicationCategory": "EngineeringApplication",
+        "operatingSystem": "Any",
+        "permissions": "browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "RUB"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "Калькулятор РК"
+        },
+        "keywords": "радиографический контроль, расчёт экспозиции, параметры РК, ГОСТ Р 50.05.07"
+    }
+    </script>
+    
+    <!-- Яндекс.Метрика -->
+    <script type="text/javascript" >
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(95337545, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true,
+            ecommerce:"dataLayer"
+        });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/95337545" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --gray: #95a5a6;
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333; 
+            font-size: 16px; 
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .logo-text h1 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .logo-text p {
+            font-size: 16px;
+            color: var(--gray);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        nav a:hover, nav a.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            width: 100%;
+        }
+        
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--gray);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        /* Calculator Grid - ВЕРТИКАЛЬНОЕ РАСПОЛОЖЕНИЕ */
+        .calculator-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .calculator-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--secondary);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: auto;
+        }
+        
+        .calculator-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .calculator-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .calculator-icon {
+            font-size: 40px;
+            color: var(--secondary);
+            flex-shrink: 0;
+        }
+        
+        .calculator-content {
+            flex-grow: 1;
+        }
+        
+        .calculator-title {
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .calculator-description {
+            color: var(--gray);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* Узкие и длинные кнопки */
+        .btn-calculator {
+            display: block;
+            padding: 14px 25px;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .btn-calculator:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .btn-disabled:hover {
+            background: var(--gray);
+            transform: none;
+        }
+        
+        .btn-back {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--gray);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .btn-back:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+        
+        .development-badge {
+            display: inline-block;
+            background: var(--warning);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-title {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .news-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .news-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .news-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .news-date {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+        
+        .news-text {
+            font-size: 13px;
+            color: var(--dark);
+            line-height: 1.4;
+        }
+        
+        .banner-sidebar {
+            background: linear-gradient(135deg, var(--secondary), #8e44ad);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        /* Footer */
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 0;
+            border-radius: 15px;
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 0 40px;
+        }
+        
+        .footer-section h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        .contact-info {
+            text-align: left;
+        }
+        
+        .contact-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+        
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-link:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .telegram-link {
+            background: #0088cc;
+        }
+        
+        .telegram-link:hover {
+            background: #0077b3;
+        }
+        
+        .copyright {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            color: var(--gray);
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.5;
+        }
+        
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-30 {
+            margin-top: 30px;
+        }
+        
+        .mb-30 {
+            margin-bottom: 30px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+                padding: 0 20px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .calculator-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .calculator-icon {
+                align-self: center;
+            }
+            
+            .content-section {
+                padding: 25px;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">RК</div>
+                    <div class="logo-text">
+                        <h1>Калькулятор РК</h1>
+                        <p>Расчёты параметров радиографического контроля (гамма-графирование)</p>
+                    </div>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="nav-link" data-section="home">Главная</a></li>
+                        <li><a href="#" class="nav-link" data-section="about">О проекте</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="content-area">
+                <!-- Главная страница -->
+                <section id="home-section" class="content-section">
+                    <h1 class="section-title">Профессиональные калькуляторы РК</h1>
+                    <p class="section-subtitle">Онлайн инструменты для расчёта параметров радиографического контроля согласно ГОСТ Р 50.05.07
+                        Внимание! Сайт в режиме тестирования! 
+                    </p>
+                    
+                    <div class="calculator-vertical">
+                        <div class="calculator-card">
+                            <div class="calculator-header">
+                                <div class="calculator-icon">📐</div>
+                                <div class="calculator-content">
+                                    <h3 class="calculator-title">Калькулятор параметров РК</h3>
+                                    <p class="calculator-description">
+                                        Расчёт фокусного расстояния, количества экспозиций, длины участков контроля 
+                                        и других параметров радиографического контроля по ГОСТ Р 50.05.07-2018
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="RK_final_with_detailed_help2.html" class="btn-calculator" target="_blank">
+                                Открыть калькулятор параметров РК
+                            </a>
+                        </div>
+                        
+                        <div class="calculator-card">
+                            <div class="calculator-header">
+                                <div class="calculator-icon">☢️</div>
+                                <div class="calculator-content">
+                                    <h3 class="calculator-title">Расчёт активности источника</h3>
+                                    <p class="calculator-description">
+                                        Определение необходимой активности радионуклидных источников (селен, иридий) 
+                                        для проведения радиографического контроля с учётом различных условий
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="RK.html" class="btn-calculator" target="_blank">
+                                Открыть калькулятор активности источника
+                            </a>
+                        </div>
+                        
+                        <div class="calculator-card">
+                            <div class="calculator-header">
+                                <div class="calculator-icon">⏱️</div>
+                                <div class="calculator-content">
+                                    <h3 class="calculator-title">Расчёт времени экспозиции</h3>
+                                    <p class="calculator-description">
+                                        Определение времени экспозиции для различных материалов и толщин 
+                                        с учётом типа источника, фокусного расстояния и других параметров просветки
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="exposure_calculator.html" class="btn-calculator" target="_blank">
+                                Открыть калькулятор времени экспозиции
+                            </a>
+                        </div>
+                        
+                        <div class="calculator-card">
+                            <div class="calculator-header">
+                                <div class="calculator-icon">📋</div>
+                                <div class="calculator-content">
+                                    <h3 class="calculator-title">Технологическая карта РК
+                                        <span class="development-badge">в разработке</span>
+                                    </h3>
+                                    <p class="calculator-description">
+                                        Автоматическое формирование технологических карт радиографического контроля. 
+                                        Создание полной документации для дефектоскопистов и специалистов ЛНК
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="btn-calculator btn-disabled" disabled>
+                                Скоро будет доступно
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- О проекте -->
+                <section id="about-section" class="content-section hidden">
+                    <h2 class="section-title">О проекте</h2>
+                    
+                    <div class="calculator-card">
+                        <h3 class="calculator-title">Наша миссия</h3>
+                        <p class="calculator-description">
+                            Мы создаём удобные и точные инструменты для специалистов в области 
+                            неразрушающего контроля, чтобы сделать их работу более эффективной и безопасной.
+                            Все расчёты выполняются в соответствии с действующими ГОСТами и нормативными документами.
+                            <br><br>
+                            <strong>Данный сервис является продуктом независимого разработчика и ни как не связан с какими либо организациями и юридическими лицами.</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="calculator-card mt-30">
+                        <h3 class="calculator-title">Для кого эти инструменты</h3>
+                        <p class="calculator-description">
+                            Наши калькуляторы предназначены для дефектоскопистов, специалистов лабораторий 
+                            неразрушающего контроля, инженеров-технологов и всех, кто работает в области 
+                            радиографического контроля и гамма-графирования.
+                        </p>
+                    </div>
+
+                    <!-- Отказ от ответственности -->
+                    <div class="disclaimer">
+                        <h4>Отказ от ответственности</h4>
+                        <p>
+                            Разработчик не несёт ответственность за потери связанные с применением результатов расчётов 
+                            полученных с использованием данного сервиса. Всегда сверяйте полученные результаты с актуальной 
+                            действующей методической документацией.
+                        </p>
+                    </div>
+
+                    <!-- Кнопка возврата в главное меню -->
+                    <div class="text-center">
+                        <button class="btn-back" onclick="showSection('home')">
+                            ← Вернуться на главную
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Боковая панель -->
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">📢 Новости и обновления</h3>
+                    
+                    <div class="news-item">
+                        <div class="news-title">Добавлен таймер экспозиции</div>
+                        <div class="news-date">10 октября 2025</div>
+                        <div class="news-text">
+                            В калькуляторе времени экспозиции теперь доступен удобный таймер 
+                            со звуковыми оповещениями для контроля процесса.
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-title">Расширены диапазоны толщин</div>
+                        <div class="news-date">10 октября 2025</div>
+                        <div class="news-text">
+                            Обновлены допустимые диапазоны толщин для различных материалов 
+                            в соответствии с практическими потребностями.
+                        </div>
+                    </div>
+                    
+                    <div class="news-item">
+                        <div class="news-title">Новый дизайн</div>
+                        <div class="news-date">10 октябрв декабря 2025</div>
+                        <div class="news-text">
+                            Запущен обновленный интерфейс сайта с улучшенной навигацией 
+                            и адаптивным дизайном для мобильных устройств.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">🔗 Полезные ссылки</h3>
+                    <div class="banner-sidebar">
+                        <p>Рекламный баннер</p>
+                        <small>Здесь может быть ваша реклама</small>
+                    </div>
+                </div>
+                
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">📊 Статистика</h3>
+                    <div class="news-text">
+                        <p>🔄 <strong>Более 1000 расчётов</strong> выполнено за последний месяц</p>
+                        <p>👥 <strong>500+ специалистов</strong> используют наши калькуляторы</p>
+                        <p>⭐ <strong>4.8/5</strong> средняя оценка пользователей</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <a href="mailto:moohobor@yandex.ru" class="contact-link">
+                                📧 moohobor@yandex.ru
+                            </a>
+                        </div>
+                        <div class="contact-item">
+                            <a href="https://t.me/robotaxist" class="contact-link telegram-link" target="_blank">
+                                📱 Telegram
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Техническая поддержка</h3>
+                    <p>Если у вас возникли вопросы или предложения по улучшению сервиса, свяжитесь с нами. Мы постоянно работаем над улучшением функциональности и точности расчётов.</p>
+                    <a href="mailto:moohobor@yandex.ru" class="btn-calculator" style="margin-top: 15px;">
+                        Написать на email
+                    </a>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2024 Калькулятор РК. Профессиональные инструменты для радиографического контроля.</p>
+                <p>Независимый проект</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Навигация по разделам
+        document.addEventListener('DOMContentLoaded', function() {
+            // Установка активной ссылки при загрузке
+            document.querySelector('.nav-link[data-section="home"]').classList.add('active');
+            
+            // Отслеживание Яндекс.Метрикой
+            const links = document.querySelectorAll('a[href$=".html"]');
+            links.forEach(link => {
+                link.addEventListener('click', function() {
+                    ym(95337545, 'reachGoal', 'calculator_open', {
+                        calculator: this.getAttribute('href'),
+                        buttonText: this.textContent.trim()
+                    });
+                });
+            });
+
+            // Обработчики навигации
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                    
+                    // Обновление активной ссылки в навигации
+                    document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+
+        function showSection(sectionId) {
+            // Скрыть все разделы
+            document.querySelectorAll('[id$="-section"]').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Показать выбранный раздел
+            const targetSection = document.getElementById(sectionId + '-section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+            
+            // Прокрутка к верху
+            window.scrollTo(0, 0);
+        }
+
+        // Автоматическое обновление года в футере
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearElement = document.querySelector('.copyright p');
+            if (yearElement) {
+                yearElement.innerHTML = yearElement.innerHTML.replace('2024', new Date().getFullYear());
+            }
+        });
+    </script>
+</body>
+</html>

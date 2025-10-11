@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор активности источников гамма-излучения</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .radio-option input {
+            display: none;
+        }
+        
+        .radio-option label {
+            display: block;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .radio-option input:checked + label {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .result-label {
+            font-weight: 600;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: #3498db;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .actions button {
+            flex: 1;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background-color: #219653;
+        }
+        
+        .table-container {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 5px 0;
+            font-size: 10px;
+            page-break-inside: avoid;
+        }
+        
+        .print-table th, .print-table td {
+            padding: 4px 6px;
+            text-align: center;
+            border: 1px solid #000;
+        }
+        
+        .print-table th {
+            background-color: #f0f0f0;
+            font-weight: 600;
+            color: #000;
+        }
+        
+        .print-table .date-cell {
+            background-color: #f8f8f8;
+        }
+        
+        .print-table tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        
+        .table-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            page-break-inside: avoid;
+        }
+        
+        .table-column {
+            flex: 1;
+            margin: 0 3px;
+        }
+        
+        .table-section {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
+        
+        .table-section h4 {
+            margin-bottom: 8px;
+            color: #2c3e50;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .info-box h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .title-page {
+            text-align: center;
+            padding: 50px 20px;
+            page-break-after: always;
+        }
+        
+        .title-page h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .title-page .organization {
+            font-size: 18px;
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+        
+        .title-page .document-title {
+            font-size: 22px;
+            margin: 40px 0;
+            font-weight: bold;
+        }
+        
+        .title-page .source-info {
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: left;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+                background-color: white;
+                font-size: 10px;
+                line-height: 1.2;
+            }
+            
+            .container {
+                max-width: 100%;
+                box-shadow: none;
+                padding: 5mm;
+                margin: 0;
+            }
+            
+            .form-group, .result, .actions, .info-box, h1, .subtitle, .table-actions {
+                display: none !important;
+            }
+            
+            .table-container {
+                display: block !important;
+                margin-top: 0;
+            }
+            
+            .print-table {
+                font-size: 8px;
+            }
+            
+            .print-table th, .print-table td {
+                padding: 2px 4px;
+                border: 0.5px solid #000;
+            }
+            
+            .print-table .date-cell {
+                background-color: #f8f8f8 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .print-table tr:nth-child(even) {
+                background-color: #f8f8f8 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .table-row {
+                margin-bottom: 5px;
+            }
+            
+            .table-section {
+                margin-bottom: 10px;
+            }
+            
+            .table-section h4 {
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+            
+            .title-page {
+                display: block !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .radio-group, .form-row {
+                flex-direction: column;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .table-row {
+                flex-direction: column;
+            }
+            
+            .table-column {
+                margin: 3px 0;
+            }
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .table-actions button {
+            flex: 1;
+        }
+        
+        .date-range {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .date-range h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .title-page {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Калькулятор активности источников гамма-излучения</h1>
+        <p class="subtitle">Расчёт активности для источников Иридий-192 и Селен-75</p>
+        
+        <div class="info-box">
+            <h4>Информация о параметрах источников:</h4>
+            <p><strong>Se-75:</strong> Период полураспада - 119.78 дней</p>
+            <p><strong>Ir-192:</strong> Период полураспада - 73.83 дней</p>
+        </div>
+        
+        <form id="activityForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="source_number">Номер источника:</label>
+                    <input type="text" id="source_number" required>
+                </div>
+                <div class="form-group">
+                    <label for="device_number">Номер дефектоскопа:</label>
+                    <input type="text" id="device_number" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Тип источника:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="source_se75" name="source_type" value="Se-75" checked>
+                        <label for="source_se75">Se-75</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="source_ir192" name="source_type" value="Ir-192">
+                        <label for="source_ir192">Ir-192</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="activity">Паспортная активность (Кюри):</label>
+                <input type="number" id="activity" step="0.01" min="0.01" required>
+                <div class="error" id="activityError">Активность должна быть положительным числом</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="release_date">Дата выпуска источника:</label>
+                <input type="date" id="release_date" required>
+                <div class="error" id="releaseDateError">Дата выпуска не может быть в будущем</div>
+            </div>
+            
+            <div class="date-range">
+                <h4>Выполнить расчёт на период:</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start_date">Дата начала:</label>
+                        <input type="date" id="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">Дата окончания:</label>
+                        <input type="date" id="end_date" required>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit">Рассчитать активность</button>
+        </form>
+        
+        <div class="result" id="result">
+            <h3>Результаты расчёта</h3>
+            <div class="result-item">
+                <span class="result-label">Тип источника:</span>
+                <span class="result-value" id="resultSourceType"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Номер источника:</span>
+                <span class="result-value" id="resultSourceNumber"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Номер дефектоскопа:</span>
+                <span class="result-value" id="resultDeviceNumber"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Паспортная активность:</span>
+                <span class="result-value" id="resultInitialActivity"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Дата выпуска:</span>
+                <span class="result-value" id="resultReleaseDate"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Период расчёта:</span>
+                <span class="result-value" id="resultPeriod"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Активность на начало периода:</span>
+                <span class="result-value" id="resultStartActivity"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Активность на конец периода:</span>
+                <span class="result-value" id="resultEndActivity"></span>
+            </div>
+            
+            <div class="actions">
+                <button id="generateTableBtn" class="btn-secondary">Создать таблицу для печати</button>
+                <button id="repeatCalculationBtn" class="btn-secondary">Повторить расчёт</button>
+            </div>
+        </div>
+        
+        <div class="table-container" id="tableContainer">
+            <div class="table-actions">
+                <button id="printTableBtn" class="btn-success">🖨️ Печать таблицы</button>
+                <button id="downloadTableBtn" class="btn-success">📥 Скачать таблицу (CSV)</button>
+                <button id="hideTableBtn" class="btn-secondary">Скрыть таблицу</button>
+            </div>
+            
+            <!-- Титульная страница для печати -->
+            <div class="title-page" id="titlePage">
+                <div class="document-title">Таблица активности источника</div>
+                <div class="source-info">
+                    <div><strong>Номер дефектоскопа:</strong> <span id="printDeviceNumber"></span></div>
+                    <div><strong>Номер источника:</strong> <span id="printSourceNumber"></span></div>
+                    <div><strong>Тип источника:</strong> <span id="printSourceType"></span></div>
+                    <div><strong>Паспортная активность:</strong> <span id="printActivity"></span> Кюри</div>
+                    <div><strong>Дата выпуска:</strong> <span id="printReleaseDate"></span></div>
+                    <div><strong>Период расчёта:</strong> <span id="printPeriod"></span></div>
+                </div>
+            </div>
+            
+            <div id="printableTable">
+                <!-- Таблица будет сгенерирована здесь -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Константы активности
+        const SE75_HALF_LIFE = 119.78;
+        const IR192_HALF_LIFE = 73.83;
+        const CONVERSION_FACTOR_IR192 = 0.34;
+        const CONVERSION_FACTOR_SE75 = 0.27;
+        
+        // Названия месяцев
+        const monthNames = [
+            'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+            'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+        ];
+        
+        // Элементы DOM
+        const form = document.getElementById('activityForm');
+        const resultDiv = document.getElementById('result');
+        const tableContainer = document.getElementById('tableContainer');
+        const printableTable = document.getElementById('printableTable');
+        const titlePage = document.getElementById('titlePage');
+        const generateTableBtn = document.getElementById('generateTableBtn');
+        const repeatCalculationBtn = document.getElementById('repeatCalculationBtn');
+        const printTableBtn = document.getElementById('printTableBtn');
+        const downloadTableBtn = document.getElementById('downloadTableBtn');
+        const hideTableBtn = document.getElementById('hideTableBtn');
+        
+        // Текущие данные расчета
+        let currentCalculationData = null;
+        let currentTableData = [];
+        
+        // Функция для расчета активности
+        function calculateActivity(sourceType, activity, releaseDate, targetDate) {
+            const halfLife = sourceType === "Se-75" ? SE75_HALF_LIFE : IR192_HALF_LIFE;
+            const conversionFactor = sourceType === "Se-75" ? CONVERSION_FACTOR_SE75 : CONVERSION_FACTOR_IR192;
+            
+            const deltaDays = (targetDate - releaseDate) / (1000 * 60 * 60 * 24);
+            const remainingActivity = activity * Math.pow(0.5, deltaDays / halfLife);
+            const raEquiv = remainingActivity * conversionFactor;
+            
+            return {
+                remainingActivity: remainingActivity,
+                raEquiv: raEquiv
+            };
+        }
+        
+        // Функция для форматирования даты с текстовым месяцем
+        function formatDateWithTextMonth(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = monthNames[date.getMonth()];
+            return `${day} ${month}`;
+        }
+        
+        // Функция для форматирования даты с годом
+        function formatDateWithYear(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+        
+        // Функция для генерации таблицы для печати
+        function generatePrintableTable(sourceType, activity, releaseDate, startDate, endDate, sourceNumber, deviceNumber) {
+            const halfLife = sourceType === "Se-75" ? SE75_HALF_LIFE : IR192_HALF_LIFE;
+            const conversionFactor = sourceType === "Se-75" ? CONVERSION_FACTOR_SE75 : CONVERSION_FACTOR_IR192;
+            
+            // Очистка таблицы
+            printableTable.innerHTML = '';
+            currentTableData = [];
+            
+            // Заполнение титульной страницы
+            document.getElementById('printDeviceNumber').textContent = deviceNumber;
+            document.getElementById('printSourceNumber').textContent = sourceNumber;
+            document.getElementById('printSourceType').textContent = sourceType;
+            document.getElementById('printActivity').textContent = activity;
+            document.getElementById('printReleaseDate').textContent = formatDateWithYear(releaseDate);
+            document.getElementById('printPeriod').textContent = `с ${formatDateWithYear(startDate)} по ${formatDateWithYear(endDate)}`;
+            
+            // Создание заголовка таблицы
+            const headerRow = document.createElement('div');
+            headerRow.className = 'table-row';
+            headerRow.style.marginBottom = '10px';
+            headerRow.style.fontWeight = 'bold';
+            headerRow.style.textAlign = 'center';
+            headerRow.innerHTML = `
+                <div>Номер дефектоскопа: ${deviceNumber} | Номер источника: ${sourceNumber}</div>
+            `;
+            printableTable.appendChild(headerRow);
+            
+            // Создание данных для таблицы
+            const daysCount = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const rowsPerColumn = 40;
+            const columnsPerRow = 5;
+            
+            // Создание всех данных
+            const allData = [];
+            for (let i = 0; i < daysCount; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+                
+                const result = calculateActivity(sourceType, activity, releaseDate, currentDate);
+                
+                allData.push({
+                    date: currentDate,
+                    formattedDate: formatDateWithTextMonth(currentDate),
+                    activity: result.raEquiv.toFixed(2)
+                });
+                
+                currentTableData.push({
+                    date: formatDateWithTextMonth(currentDate),
+                    activity: result.raEquiv.toFixed(2)
+                });
+            }
+            
+            // Разбиение на колонки
+            const totalColumns = Math.ceil(daysCount / rowsPerColumn);
+            
+            for (let colGroup = 0; colGroup < Math.ceil(totalColumns / columnsPerRow); colGroup++) {
+                const tableSection = document.createElement('div');
+                tableSection.className = 'table-section';
+                
+                const tableRow = document.createElement('div');
+                tableRow.className = 'table-row';
+                
+                // Создание колонок в текущей группе
+                for (let col = 0; col < Math.min(columnsPerRow, totalColumns - colGroup * columnsPerRow); col++) {
+                    const columnIndex = colGroup * columnsPerRow + col;
+                    const startIndex = columnIndex * rowsPerColumn;
+                    const endIndex = Math.min(startIndex + rowsPerColumn, daysCount);
+                    
+                    const tableColumn = document.createElement('div');
+                    tableColumn.className = 'table-column';
+                    
+                    const table = document.createElement('table');
+                    table.className = 'print-table';
+                    
+                    // Заголовок таблицы
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    const thDate = document.createElement('th');
+                    thDate.textContent = 'Дата';
+                    thDate.style.width = '50%';
+                    const thActivity = document.createElement('th');
+                    thActivity.textContent = 'Активность (гр.-экв. радия)';
+                    thActivity.style.width = '50%';
+                    headerRow.appendChild(thDate);
+                    headerRow.appendChild(thActivity);
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    
+                    // Тело таблицы
+                    const tbody = document.createElement('tbody');
+                    
+                    for (let i = startIndex; i < endIndex; i++) {
+                        const data = allData[i];
+                        const row = document.createElement('tr');
+                        
+                        const dateCell = document.createElement('td');
+                        dateCell.textContent = data.formattedDate;
+                        dateCell.className = 'date-cell';
+                        
+                        const activityCell = document.createElement('td');
+                        activityCell.textContent = data.activity;
+                        
+                        row.appendChild(dateCell);
+                        row.appendChild(activityCell);
+                        tbody.appendChild(row);
+                    }
+                    
+                    table.appendChild(tbody);
+                    tableColumn.appendChild(table);
+                    tableRow.appendChild(tableColumn);
+                }
+                
+                tableSection.appendChild(tableRow);
+                printableTable.appendChild(tableSection);
+            }
+            
+            tableContainer.style.display = 'block';
+            titlePage.style.display = 'block';
+        }
+        
+        // Функция для скачивания таблицы в формате CSV
+        function downloadTableAsCSV() {
+            if (currentTableData.length === 0) return;
+            
+            const headers = ['Дата', 'Активность (гр.-экв. радия)'];
+            const rows = [headers.join(',')];
+            
+            currentTableData.forEach(item => {
+                const row = [item.date, item.activity];
+                rows.push(row.join(','));
+            });
+            
+            const csvContent = rows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `activity_table_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Обработчик отправки формы
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Получение значений из формы
+            const sourceType = document.querySelector('input[name="source_type"]:checked').value;
+            const activity = parseFloat(document.getElementById('activity').value);
+            const releaseDate = new Date(document.getElementById('release_date').value);
+            const startDate = new Date(document.getElementById('start_date').value);
+            const endDate = new Date(document.getElementById('end_date').value);
+            const sourceNumber = document.getElementById('source_number').value;
+            const deviceNumber = document.getElementById('device_number').value;
+            
+            // Валидация
+            let isValid = true;
+            
+            if (activity <= 0) {
+                document.getElementById('activityError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('activityError').style.display = 'none';
+            }
+            
+            if (releaseDate > new Date()) {
+                document.getElementById('releaseDateError').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('releaseDateError').style.display = 'none';
+            }
+            
+            if (startDate < releaseDate) {
+                alert("Дата начала периода не может быть раньше даты выпуска источника!");
+                isValid = false;
+            }
+            
+            if (endDate < startDate) {
+                alert("Дата окончания периода не может быть раньше даты начала!");
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Расчет активности на начало и конец периода
+            const startResult = calculateActivity(sourceType, activity, releaseDate, startDate);
+            const endResult = calculateActivity(sourceType, activity, releaseDate, endDate);
+            
+            // Сохранение данных расчета
+            currentCalculationData = {
+                sourceType,
+                activity,
+                releaseDate,
+                startDate,
+                endDate,
+                sourceNumber,
+                deviceNumber
+            };
+            
+            // Отображение результатов
+            document.getElementById('resultSourceType').textContent = sourceType;
+            document.getElementById('resultSourceNumber').textContent = sourceNumber;
+            document.getElementById('resultDeviceNumber').textContent = deviceNumber;
+            document.getElementById('resultInitialActivity').textContent = `${activity} Кюри`;
+            document.getElementById('resultReleaseDate').textContent = formatDateWithYear(releaseDate);
+            document.getElementById('resultPeriod').textContent = `с ${formatDateWithYear(startDate)} по ${formatDateWithYear(endDate)}`;
+            document.getElementById('resultStartActivity').textContent = `${startResult.raEquiv.toFixed(2)} гр.-экв. радия`;
+            document.getElementById('resultEndActivity').textContent = `${endResult.raEquiv.toFixed(2)} гр.-экв. радия`;
+            
+            resultDiv.style.display = 'block';
+            tableContainer.style.display = 'none';
+            titlePage.style.display = 'none';
+        });
+        
+        // Обработчики кнопок
+        generateTableBtn.addEventListener('click', function() {
+            if (currentCalculationData) {
+                generatePrintableTable(
+                    currentCalculationData.sourceType,
+                    currentCalculationData.activity,
+                    currentCalculationData.releaseDate,
+                    currentCalculationData.startDate,
+                    currentCalculationData.endDate,
+                    currentCalculationData.sourceNumber,
+                    currentCalculationData.deviceNumber
+                );
+            }
+        });
+        
+        repeatCalculationBtn.addEventListener('click', function() {
+            form.reset();
+            resultDiv.style.display = 'none';
+            tableContainer.style.display = 'none';
+            titlePage.style.display = 'none';
+            // Установка дат по умолчанию
+            setDefaultDates();
+        });
+        
+        printTableBtn.addEventListener('click', function() {
+            window.print();
+        });
+        
+        downloadTableBtn.addEventListener('click', downloadTableAsCSV);
+        
+        hideTableBtn.addEventListener('click', function() {
+            tableContainer.style.display = 'none';
+            titlePage.style.display = 'none';
+        });
+        
+        // Функция для установки дат по умолчанию
+        function setDefaultDates() {
+            const today = new Date();
+            
+            // Дата выпуска - 30 дней назад
+            const releaseDate = new Date();
+            releaseDate.setDate(today.getDate() - 30);
+            document.getElementById('release_date').valueAsDate = releaseDate;
+            
+            // Период расчёта - с сегодня по +30 дней
+            document.getElementById('start_date').valueAsDate = today;
+            const endDate = new Date();
+            endDate.setDate(today.getDate() + 30);
+            document.getElementById('end_date').valueAsDate = endDate;
+        }
+        
+        // Инициализация дат по умолчанию
+        setDefaultDates();
+    </script>
+</body>
+</html>

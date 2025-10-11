@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Расчёт времени экспозиции - Радиографический контроль</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333; 
+            font-size: 16px; 
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--warning);
+            text-align: center;
+        }
+        
+        .step {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .step-title {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step-number {
+            background: var(--warning);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #219a52;
+        }
+        
+        .btn-danger {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .result-section {
+            background: linear-gradient(135deg, var(--success), #27ae60);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .result-item {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .result-value {
+            font-weight: 600;
+        }
+        
+        .time-result {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+        }
+        
+        /* Таймер */
+        .timer-section {
+            background: linear-gradient(135deg, var(--primary), #34495e);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .timer-display {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .timer-progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .timer-progress-bar {
+            height: 100%;
+            background: var(--warning);
+            border-radius: 4px;
+            transition: width 1s linear;
+            width: 100%;
+        }
+        
+        .timer-warning {
+            background: var(--accent) !important;
+        }
+        
+        .timer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .timer-status {
+            font-size: 16px;
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .error-message {
+            color: var(--accent);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .info-text {
+            color: var(--gray);
+            font-size: 14px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .material-info {
+            background: #e8f4fd;
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons, .timer-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .calculator-card {
+                padding: 20px;
+            }
+            
+            .timer-display {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-card">
+            <h1 class="section-title">⏱️ Расчёт времени экспозиции (гамма)</h1>
+            
+            <!-- Шаг 1: Выбор материала -->
+            <div class="step" id="step-material">
+                <div class="step-title">
+                    <div class="step-number">1</div>
+                    Выберите материал объекта контроля:
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="selectMaterial('steel')">Сталь</button>
+                    <button class="btn btn-primary" onclick="selectMaterial('titanium')">Титан</button>
+                    <button class="btn btn-primary" onclick="selectMaterial('aluminum')">Алюминий</button>
+                </div>
+            </div>
+            
+            <!-- Шаг 2: Ввод радиационной толщины -->
+            <div class="step hidden" id="step-thickness">
+                <div class="step-title">
+                    <div class="step-number">2</div>
+                    Введите радиационную толщину S (мм):
+                </div>
+                <div class="input-group">
+                    <input type="number" id="input-thickness" step="0.1" placeholder="Введите толщину в мм">
+                    <div class="info-text" id="thickness-range-info">Допустимый диапазон: </div>
+                    <div class="error-message" id="error-thickness"></div>
+                </div>
+                <button class="btn btn-warning" onclick="validateThickness()">Далее</button>
+            </div>
+            
+            <!-- Шаг 3: Ввод активности источника -->
+            <div class="step hidden" id="step-activity">
+                <div class="step-title">
+                    <div class="step-number">3</div>
+                    Введите активность источника (гр.-экв. Ra):
+                </div>
+                <div class="input-group">
+                    <input type="number" id="input-activity" step="0.1" min="0.1" placeholder="Например: 10">
+                    <div class="error-message" id="error-activity"></div>
+                </div>
+                <button class="btn btn-warning" onclick="validateActivity()">Далее</button>
+            </div>
+            
+            <!-- Шаг 4: Выбор типа плёнки -->
+            <div class="step hidden" id="step-film">
+                <div class="step-title">
+                    <div class="step-number">4</div>
+                    Выберите тип плёнки:
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="selectFilm('D4', 3.5)">D4 (k=3.5)</button>
+                    <button class="btn btn-primary" onclick="selectFilm('D5', 2.7)">D5 (k=2.7)</button>
+                    <button class="btn btn-primary" onclick="selectFilm('D7', 1.7)">D7 (k=1.7)</button>
+                </div>
+            </div>
+            
+            <!-- Шаг 5: Ввод фокусного расстояния -->
+            <div class="step hidden" id="step-focus">
+                <div class="step-title">
+                    <div class="step-number">5</div>
+                    Введите фокусное расстояние (мм):
+                </div>
+                <div class="input-group">
+                    <input type="number" id="input-focus" step="1" min="100" placeholder="Например: 500">
+                    <div class="error-message" id="error-focus"></div>
+                </div>
+                <button class="btn btn-success" onclick="calculateExposure()">Рассчитать</button>
+            </div>
+            
+            <!-- Результаты расчёта -->
+            <div class="result-section" id="result-section">
+                <h2 class="result-title">📋 Результаты расчёта</h2>
+                
+                <div class="result-item">
+                    <span>Материал:</span>
+                    <span class="result-value" id="result-material"></span>
+                </div>
+                
+                <div class="result-item">
+                    <span>Радиационная толщина:</span>
+                    <span class="result-value" id="result-thickness"></span>
+                </div>
+                
+                <div class="result-item">
+                    <span>Активность источника:</span>
+                    <span class="result-value" id="result-activity"></span>
+                </div>
+                
+                <div class="result-item">
+                    <span>Тип плёнки:</span>
+                    <span class="result-value" id="result-film"></span>
+                </div>
+                
+                <div class="result-item">
+                    <span>Фокусное расстояние:</span>
+                    <span class="result-value" id="result-focus"></span>
+                </div>
+                
+                <div class="time-result" id="result-time">
+                    🕒 Время экспозиции: <span id="exposure-time"></span>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-warning" onclick="showTimer()">⏱️ Запустить таймер</button>
+                    <button class="btn btn-primary" onclick="restartCalculation()">🔄 Новый расчёт</button>
+                </div>
+            </div>
+            
+            <!-- Таймер -->
+            <div class="timer-section" id="timer-section">
+                <h2 class="result-title">⏰ Таймер экспозиции</h2>
+                
+                <div class="timer-display" id="timer-display">
+                    00:00
+                </div>
+                
+                <div class="timer-progress">
+                    <div class="timer-progress-bar" id="timer-progress"></div>
+                </div>
+                
+                <div class="timer-controls">
+                    <button class="btn btn-success" id="timer-start-btn" onclick="startTimer()">▶️ Запустить таймер</button>
+                    <button class="btn btn-danger" onclick="resetTimer()">⏹️ Сбросить таймер</button>
+                </div>
+                
+                <div class="timer-status" id="timer-status">
+                    Таймер готов к запуску
+                </div>
+                
+                <div class="action-buttons" style="margin-top: 25px;">
+                    <button class="btn btn-warning" onclick="hideTimer()">← Вернуться к результатам</button>
+                    <button class="btn btn-primary" onclick="restartCalculation()">🔄 Новый расчёт</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Аудио элементы для звуковых сигналов -->
+    <audio id="beep-sound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==" type="audio/wav">
+    </audio>
+    
+    <audio id="end-sound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==" type="audio/wav">
+    </audio>
+
+    <script>
+        // Таблица t от S (расширенная для новых диапазонов)
+        const TABLE_S_T = {
+            // Сталь: 5-100 мм
+            5: 12, 10: 17, 15: 22, 20: 32, 25: 45, 30: 63, 35: 87, 40: 120, 
+            45: 170, 50: 240, 55: 320, 60: 420, 65: 540, 70: 680, 75: 840, 
+            80: 1020, 85: 1220, 90: 1450, 95: 1700, 100: 2000,
+            
+            // Алюминий: 15-150 мм (значения для стали, будут скорректированы коэффициентом)
+            15: 22, 20: 32, 25: 45, 30: 63, 35: 87, 40: 120, 45: 170, 50: 240,
+            55: 320, 60: 420, 65: 540, 70: 680, 75: 840, 80: 1020, 85: 1220,
+            90: 1450, 95: 1700, 100: 2000, 105: 2350, 110: 2750, 115: 3200,
+            120: 3700, 125: 4250, 130: 4850, 135: 5500, 140: 6200, 145: 6950,
+            150: 7750,
+            
+            // Титан: 10-120 мм (значения для стали, будут скорректированы коэффициентом)
+            10: 17, 15: 22, 20: 32, 25: 45, 30: 63, 35: 87, 40: 120, 45: 170,
+            50: 240, 55: 320, 60: 420, 65: 540, 70: 680, 75: 840, 80: 1020,
+            85: 1220, 90: 1450, 95: 1700, 100: 2000, 105: 2350, 110: 2750,
+            115: 3200, 120: 3700
+        };
+
+        // Коэффициенты для расчёта
+        const COEFFICIENTS = {
+            "steel": 1.0,
+            "aluminum": 0.654,
+            "titanium": 0.75,
+        };
+
+        // Диапазоны толщин для материалов
+        const THICKNESS_RANGES = {
+            "steel": { min: 5, max: 100 },
+            "aluminum": { min: 15, max: 150 },
+            "titanium": { min: 10, max: 120 }
+        };
+
+        // Данные расчёта
+        let calculationData = {
+            material: null,
+            S: null,
+            g: null,
+            k: null,
+            film_type: null,
+            f: null,
+            exposureTime: null
+        };
+
+        // Переменные для таймера
+        let timerInterval;
+        let remainingTime = 0;
+        let totalTime = 0;
+        let isTimerRunning = false;
+
+        // Создание звуковых сигналов
+        function createBeepSound() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            const gainNode = context.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(context.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 800;
+            gainNode.gain.value = 0.3;
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 0.2);
+            
+            setTimeout(() => {
+                oscillator.stop();
+            }, 200);
+        }
+
+        function createEndSound() {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            const gainNode = context.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(context.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 600;
+            gainNode.gain.value = 0.4;
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 1);
+            
+            setTimeout(() => {
+                oscillator.stop();
+            }, 1000);
+        }
+
+        // Интерполяция t от S
+        function interpolate_t(S) {
+            const s_values = Object.keys(TABLE_S_T).map(Number);
+            const t_values = Object.values(TABLE_S_T);
+            
+            // Находим ближайшие значения для интерполяции
+            let lower = null;
+            let upper = null;
+            
+            for (let i = 0; i < s_values.length; i++) {
+                if (s_values[i] <= S) {
+                    lower = s_values[i];
+                }
+                if (s_values[i] >= S && upper === null) {
+                    upper = s_values[i];
+                }
+            }
+            
+            // Если точное значение есть в таблице
+            if (lower === S) {
+                return TABLE_S_T[lower];
+            }
+            
+            // Если значение за пределами таблицы (для интерполяции на краях)
+            if (lower === null) {
+                lower = Math.min(...s_values);
+                upper = lower + 5;
+            }
+            if (upper === null) {
+                upper = Math.max(...s_values);
+                lower = upper - 5;
+            }
+            
+            const t_lower = TABLE_S_T[lower];
+            const t_upper = TABLE_S_T[upper];
+            
+            // Линейная интерполяция
+            return t_lower + (t_upper - t_lower) * (S - lower) / (upper - lower);
+        }
+
+        // Расчёт времени экспозиции
+        function calculate_T(S, g, k, f, material) {
+            const t = interpolate_t(S);
+            const coefficient = COEFFICIENTS[material];
+            const T = t / g * k / 500 / 500 * f * f * coefficient;
+            return T * 60; // Переводим в секунды
+        }
+
+        // Форматирование времени
+        function formatTime(seconds) {
+            if (seconds < 60) {
+                return `${seconds.toFixed(1)} сек.`;
+            }
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.round(seconds % 60);
+            if (minutes < 60) {
+                return `${minutes} мин. ${remainingSeconds} сек.`;
+            }
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+            return `${hours} ч. ${remainingMinutes} мин. ${remainingSeconds} сек.`;
+        }
+
+        // Форматирование времени для таймера
+        function formatTimerTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Таймер
+        function startTimer() {
+            if (isTimerRunning) {
+                resetTimer();
+            }
+            
+            isTimerRunning = true;
+            remainingTime = totalTime;
+            document.getElementById('timer-start-btn').textContent = '🔄 Перезапустить таймер';
+            document.getElementById('timer-status').textContent = 'Таймер запущен';
+            document.getElementById('timer-progress').classList.remove('timer-warning');
+            
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                
+                // Обновление отображения
+                document.getElementById('timer-display').textContent = formatTimerTime(remainingTime);
+                
+                // Обновление прогресс-бара
+                const progress = (remainingTime / totalTime) * 100;
+                document.getElementById('timer-progress').style.width = `${progress}%`;
+                
+                // Звуковые сигналы за 5 секунд до конца
+                if (remainingTime <= 5 && remainingTime > 0) {
+                    document.getElementById('timer-progress').classList.add('timer-warning');
+                    document.getElementById('timer-status').textContent = `Осталось ${remainingTime} сек.`;
+                    createBeepSound(); // Короткий сигнал каждую секунду
+                }
+                
+                // Окончание таймера
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer-display').textContent = '00:00';
+                    document.getElementById('timer-status').textContent = 'Экспозиция завершена!';
+                    document.getElementById('timer-progress').style.width = '0%';
+                    createEndSound(); // Протяженный сигнал окончания
+                    isTimerRunning = false;
+                    document.getElementById('timer-start-btn').textContent = '▶️ Запустить таймер';
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            remainingTime = totalTime;
+            document.getElementById('timer-display').textContent = formatTimerTime(totalTime);
+            document.getElementById('timer-progress').style.width = '100%';
+            document.getElementById('timer-progress').classList.remove('timer-warning');
+            document.getElementById('timer-status').textContent = 'Таймер сброшен';
+            document.getElementById('timer-start-btn').textContent = '▶️ Запустить таймер';
+        }
+
+        function showTimer() {
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('timer-section').style.display = 'block';
+            
+            // Установка времени таймера
+            totalTime = Math.round(calculationData.exposureTime);
+            remainingTime = totalTime;
+            document.getElementById('timer-display').textContent = formatTimerTime(totalTime);
+            document.getElementById('timer-progress').style.width = '100%';
+            resetTimer();
+        }
+
+        function hideTimer() {
+            document.getElementById('timer-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            resetTimer();
+        }
+
+        // Выбор материала
+        function selectMaterial(material) {
+            calculationData.material = material;
+            
+            // Обновляем информацию о диапазоне толщин
+            const range = THICKNESS_RANGES[material];
+            document.getElementById('thickness-range-info').textContent = 
+                `Допустимый диапазон: ${range.min}-${range.max} мм`;
+            
+            document.getElementById('step-material').classList.add('hidden');
+            document.getElementById('step-thickness').classList.remove('hidden');
+            
+            // Подсветка выбранной кнопки
+            document.querySelectorAll('#step-material .btn').forEach(btn => {
+                btn.classList.remove('btn-active');
+            });
+            event.target.classList.add('btn-active');
+        }
+
+        // Валидация толщины
+        function validateThickness() {
+            const thicknessInput = document.getElementById('input-thickness');
+            const errorElement = document.getElementById('error-thickness');
+            const thickness = parseFloat(thicknessInput.value);
+            
+            const range = THICKNESS_RANGES[calculationData.material];
+            
+            if (isNaN(thickness)) {
+                errorElement.textContent = 'Радиационная толщина должна быть числом';
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            if (thickness < range.min || thickness > range.max) {
+                errorElement.textContent = `Для ${getMaterialName(calculationData.material)} толщина должна быть от ${range.min} до ${range.max} мм`;
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            calculationData.S = thickness;
+            errorElement.style.display = 'none';
+            document.getElementById('step-thickness').classList.add('hidden');
+            document.getElementById('step-activity').classList.remove('hidden');
+        }
+
+        // Валидация активности
+        function validateActivity() {
+            const activityInput = document.getElementById('input-activity');
+            const errorElement = document.getElementById('error-activity');
+            const activity = parseFloat(activityInput.value);
+            
+            if (isNaN(activity) || activity <= 0) {
+                errorElement.textContent = 'Активность источника должна быть положительным числом';
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            calculationData.g = activity;
+            errorElement.style.display = 'none';
+            document.getElementById('step-activity').classList.add('hidden');
+            document.getElementById('step-film').classList.remove('hidden');
+        }
+
+        // Выбор типа плёнки
+        function selectFilm(filmType, k) {
+            calculationData.film_type = filmType;
+            calculationData.k = k;
+            document.getElementById('step-film').classList.add('hidden');
+            document.getElementById('step-focus').classList.remove('hidden');
+            
+            // Подсветка выбранной кнопки
+            document.querySelectorAll('#step-film .btn').forEach(btn => {
+                btn.classList.remove('btn-active');
+            });
+            event.target.classList.add('btn-active');
+        }
+
+        // Расчёт экспозиции
+        function calculateExposure() {
+            const focusInput = document.getElementById('input-focus');
+            const errorElement = document.getElementById('error-focus');
+            const focus = parseFloat(focusInput.value);
+            
+            if (isNaN(focus) || focus <= 0) {
+                errorElement.textContent = 'Фокусное расстояние должно быть положительным числом';
+                errorElement.style.display = 'block';
+                return;
+            }
+            
+            calculationData.f = focus;
+            errorElement.style.display = 'none';
+            
+            try {
+                // Выполняем расчёт
+                const exposureTime = calculate_T(
+                    calculationData.S,
+                    calculationData.g,
+                    calculationData.k,
+                    calculationData.f,
+                    calculationData.material
+                );
+                
+                calculationData.exposureTime = exposureTime;
+                
+                // Отображаем результаты
+                document.getElementById('result-material').textContent = getMaterialName(calculationData.material);
+                document.getElementById('result-thickness').textContent = calculationData.S + ' мм';
+                document.getElementById('result-activity').textContent = calculationData.g + ' гр.-экв. Ra';
+                document.getElementById('result-film').textContent = calculationData.film_type;
+                document.getElementById('result-focus').textContent = calculationData.f + ' мм';
+                document.getElementById('exposure-time').textContent = formatTime(exposureTime);
+                
+                document.getElementById('step-focus').classList.add('hidden');
+                document.getElementById('result-section').style.display = 'block';
+                
+            } catch (error) {
+                alert('Ошибка расчёта: ' + error.message);
+            }
+        }
+
+        // Получение читаемого названия материала
+        function getMaterialName(material) {
+            const names = {
+                'steel': 'Сталь',
+                'titanium': 'Титан',
+                'aluminum': 'Алюминий'
+            };
+            return names[material];
+        }
+
+        // Повторный расчёт
+        function restartCalculation() {
+            // Сброс данных
+            calculationData = {
+                material: null,
+                S: null,
+                g: null,
+                k: null,
+                film_type: null,
+                f: null,
+                exposureTime: null
+            };
+            
+            // Сброс таймера
+            resetTimer();
+            
+            // Сброс полей ввода
+            document.getElementById('input-thickness').value = '';
+            document.getElementById('input-activity').value = '';
+            document.getElementById('input-focus').value = '';
+            
+            // Скрыть все шаги, показать первый
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.add('hidden');
+            });
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('timer-section').style.display = 'none';
+            document.getElementById('step-material').classList.remove('hidden');
+            
+            // Сброс подсветки кнопок
+            document.querySelectorAll('.btn-active').forEach(btn => {
+                btn.classList.remove('btn-active');
+            });
+        }
+
+        // Обработка Enter в полях ввода
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const currentStep = this.closest('.step');
+                        if (currentStep.id === 'step-thickness') {
+                            validateThickness();
+                        } else if (currentStep.id === 'step-activity') {
+                            validateActivity();
+                        } else if (currentStep.id === 'step-focus') {
+                            calculateExposure();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
