@@ -4,6 +4,11 @@ Disallow: /tmp/
 Disallow: /private/
 Crawl-delay: 1
 
+# Для Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
 # Яндекс специфичные директивы
 User-agent: Yandex
 Allow: /
@@ -13,3 +18,4 @@ Clean-param: ref /index.html
 
 Host: kalkulatorrk.github.io
 Sitemap: https://kalkulatorrk.github.io/sitemap.txt
+
