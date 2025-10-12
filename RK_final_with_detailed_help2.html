@@ -268,9 +268,9 @@ function insertSchemeImages(scheme) {
     
     // HTML для изображения с обработкой ошибок
     const imageHtml = `
-        <img src="${imageName}" alt="Схема ${schemeName}" class="scheme-image" 
+        <img src="${imageName}" alt="Схема ${schemeName} ГОСТ Р 50.05.07-2018" class="scheme-image" 
              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        <div class="image-caption">Схема: ${schemeName}</div>
+        <div class="image-caption">Схема: ${schemeName} ГОСТ Р 50.05.07-2018</div>
     `;
     
     // Вставляем в результаты
@@ -691,4 +691,5 @@ function printAll() {
 
 </script>
 </body>
+
 </html>
