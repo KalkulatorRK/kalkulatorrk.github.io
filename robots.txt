@@ -1,5 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /tmp/
+Disallow: /private/
+Crawl-delay: 1
 
+# Яндекс специфичные директивы
+User-agent: Yandex
+Allow: /
+Disallow: /tmp/
+Disallow: /private/
+Clean-param: ref /index.html
+
+Host: kalkulatorrk.github.io
 Sitemap: https://kalkulatorrk.github.io/sitemap.txt
-
