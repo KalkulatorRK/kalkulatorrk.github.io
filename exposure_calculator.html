@@ -424,7 +424,7 @@
             <div class="col">
                 <div class="form-group">
                     <label for="operationMode"><i class="fas fa-sliders-h icon"></i>Режим работы:</label>
-                    <select id="operationMode" required onchange="updateFocusDistance(); updateCurrentFieldState()">
+                    <select id="operationMode" required onchange="updateFocusDistance(); updateCurrentFieldState(); updateFilmOptions()">
                         <option value="constant">Постоянный (П)</option>
                         <option value="pulse">Импульсный (И)</option>
                     </select>
@@ -481,16 +481,7 @@
                 <div class="form-group">
                     <label for="xrayFilmType"><i class="fas fa-film icon"></i>Тип плёнки/детектора:</label>
                     <select id="xrayFilmType" required>
-                        <option value="">Выберите тип плёнки</option>
-                        <option value="D2">D2</option>
-                        <option value="D4">D4</option>
-                        <option value="D5">D5</option>
-                        <option value="D7" selected>D7</option>
-                        <option value="D8">D8</option>
-                        <option value="INDUSTREX Flex HR">INDUSTREX Flex HR</option>
-                        <option value="DR детектор">DR детектор</option>
-                        <option value="F8+RCF">F8+RCF</option>
-                        <option value="F8+NDT1200">F8+NDT1200</option>
+                        <!-- Опции будут заполняться динамически -->
                     </select>
                 </div>
             </div>
@@ -728,14 +719,12 @@
         '130': [10,1.0, 13,1.3, 15,1.5, 16,1.75, 17,1.9, 19,2.25, 20,2.8, 22,3.0, 23,3.5, 24,3.4, 25,3.8, 26,4.2, 27,4.5, 28,5.0, 31,6.4, 32,7.1, 33,7.5, 34,8.25, 35,9.1, 36,10.0, 37,10.5, 38,10.9, 39,11.7, 40,12.4]
     };
 
-        // Номограммы для импульсных аппаратов (сталь, F=300мм) /номограмма для импульсных аппаратов привязана не к значению напряжения Кв, а к выбранному типу плёнки. В этой номограмме по оси x расположено время экспозиции в минутах, по оси y радиационная толщина в мм. Например для D7 при радиационной тощине 3 мм время экспозиции составит 1.07 минуты
-         // Структура: 'тип плёнки': [радиационная толщина1, время1, радиационная толщина2, время2, ...]
+    // Номограммы для импульсных аппаратов (сталь, F=300мм)
     const nomogramsSteelPulse = {
         'D7': [3,1.07, 4,1.18, 5,1.35, 6,1.7, 7,2.3, 8,2.6, 9,2.95, 10,3.5, 11,4.2, 12,4.8, 13,5.7, 14,6.6, 15,7.7, 16,9.0, 17,11.0, 18,14.0, 19,16.0],
         'F8+RCF': [3,0.28, 4,0.34, 5,0.38, 6,0.45, 7,0.53, 8,0.62, 9,0.73, 10,0.85, 11,1.0, 12,1.07, 13,1.17, 14,1.34, 15,1.7, 16,2.2, 17,2.6, 18,2.95, 19,3.5, 20,4.1, 21,4.8, 22,5.7, 23,6.5, 24,7.7, 25,9.0, 26,11.0, 27,14.0, 28,16.0],
         'F8+NDT1200': [3,0.015, 4,0.06, 5,0.11, 6,0.14, 7,0.16, 8,0.18, 9,0.2, 10,0.24, 11,0.28, 12,0.33, 13,0.38, 14,0.45, 15,0.52, 16,0.6, 17,0.73, 18,0.85, 19,1.0, 20,1.075, 21,1.17, 22,1.33, 23,1.7, 24,2.2, 25,2.6, 26,3.0, 27,3.55, 28,4.2, 29,4.8, 30,5.7, 31,6.7, 32,7.7, 33,9.0, 34,12.0, 35,14.0]
     };
-
 
     // Данные из Таблицы 8 (относительные экспозиционные факторы)
     const filmFactors = {
@@ -899,7 +888,7 @@
         };
     }
 
-    // Функция интерполяции в номограммах
+    // Функция интерполяции в номограммах для постоянных аппаратов
     function interpolateFromNomogram(nomogramData, voltage, thickness) {
         const voltages = Object.keys(nomogramData).map(v => parseInt(v)).sort((a, b) => a - b);
 
@@ -932,6 +921,17 @@
         return lowerExposure + voltageRatio * (upperExposure - lowerExposure);
     }
 
+    // Функция интерполяции в номограммах для импульсных аппаратов
+    function interpolateFromPulseNomogram(nomogramData, filmType, thickness) {
+        if (!nomogramData[filmType]) {
+            console.error(`Нет данных номограммы для плёнки типа: ${filmType}`);
+            return 1.0; // Возвращаем значение по умолчанию
+        }
+
+        const data = nomogramData[filmType];
+        return interpolateLinear(data, thickness);
+    }
+
     function interpolateLinear(data, thickness) {
         // data: [thickness1, exposure1, thickness2, exposure2, ...]
         for (let i = 0; i < data.length - 2; i += 2) {
@@ -957,6 +957,61 @@
     // Функция для возврата на главную страницу
     function goBack() {
         window.location.href = 'index.html';
+    }
+
+    // Функция обновления доступных типов плёнок в зависимости от режима работы
+    function updateFilmOptions() {
+        const operationMode = document.getElementById('operationMode').value;
+        const filmSelect = document.getElementById('xrayFilmType');
+        
+        // Очищаем текущие опции
+        filmSelect.innerHTML = '';
+        
+        if (operationMode === 'pulse') {
+            // Для импульсных аппаратов - все типы плёнок как для радионуклидных источников
+            const pulseFilmOptions = [
+                {value: 'D2', text: 'D2'},
+                {value: 'D4', text: 'D4'},
+                {value: 'D5', text: 'D5'},
+                {value: 'D7', text: 'D7', selected: true},
+                {value: 'D8', text: 'D8'},
+                {value: 'INDUSTREX Flex HR', text: 'INDUSTREX Flex HR'},
+                {value: 'DR детектор', text: 'DR детектор'},
+                {value: 'F8+RCF', text: 'F8+RCF'},
+                {value: 'F8+NDT1200', text: 'F8+NDT1200'}
+            ];
+            
+            pulseFilmOptions.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.text;
+                if (option.selected) {
+                    optionElement.selected = true;
+                }
+                filmSelect.appendChild(optionElement);
+            });
+        } else {
+            // Для постоянных аппаратов - стандартный набор плёнок
+            const constantFilmOptions = [
+                {value: 'D2', text: 'D2'},
+                {value: 'D4', text: 'D4'},
+                {value: 'D5', text: 'D5'},
+                {value: 'D7', text: 'D7', selected: true},
+                {value: 'D8', text: 'D8'},
+                {value: 'INDUSTREX Flex HR', text: 'INDUSTREX Flex HR'},
+                {value: 'DR детектор', text: 'DR детектор'}
+            ];
+            
+            constantFilmOptions.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.text;
+                if (option.selected) {
+                    optionElement.selected = true;
+                }
+                filmSelect.appendChild(optionElement);
+            });
+        }
     }
 
     // Функция выбора метода расчета активности
@@ -1010,6 +1065,7 @@
         } else {
             currentField.disabled = false;
             currentField.placeholder = '';
+            currentField.value = currentField.value || '3';
         }
     }
 
@@ -1030,6 +1086,7 @@
         // Инициализация по умолчанию
         updateFocusDistance();
         updateCurrentFieldState();
+        updateFilmOptions();
 
         // Установить текущую дату в поле паспортной даты
         const today = new Date().toISOString().split('T')[0];
@@ -1056,6 +1113,7 @@
             }
             updateFocusDistance();
             updateCurrentFieldState();
+            updateFilmOptions();
         }
     }
 
@@ -1089,7 +1147,7 @@
         }
     }
 
-    // Расчет для рентгеновских аппаратов
+    // Расчет для рентгеновских аппаратов - ИСПРАВЛЕННАЯ ВЕРСИЯ ДЛЯ ИМПУЛЬСНЫХ АППАРАТОВ
     function calculateXrayExposure() {
         const voltage = parseFloat(document.getElementById('voltage').value);
         const current = parseFloat(document.getElementById('current').value);
@@ -1115,11 +1173,12 @@
 
         // 1. Получение базового времени из номограмм
         if (material === 'steel' || material === 'titanium') {
-            // Для титана используем расчет как для стали и умножаем на коэффициент 0.7
             if (operationMode === 'constant') {
+                // Для постоянных аппаратов - используем номограммы по напряжению
                 baseExposure = interpolateFromNomogram(nomogramsSteelConstant, voltage, thickness);
             } else {
-                baseExposure = interpolateFromNomogram(nomogramsSteelPulse, voltage, thickness);
+                // Для импульсных аппаратов - используем номограммы по типу плёнки
+                baseExposure = interpolateFromPulseNomogram(nomogramsSteelPulse, filmType, thickness);
             }
 
             // Применяем коэффициент для титана
@@ -1128,17 +1187,28 @@
                 baseExposure *= titaniumCoefficient;
             }
         } else if (material === 'aluminum') {
-            baseExposure = interpolateFromNomogram(nomogramsAluminumConstant, voltage, thickness);
+            if (operationMode === 'constant') {
+                baseExposure = interpolateFromNomogram(nomogramsAluminumConstant, voltage, thickness);
+            } else {
+                alert('Для импульсных аппаратов и алюминия расчет временно недоступен');
+                return;
+            }
         }
 
         // 2. Корректировка для типа плёнки
         let filmFactor;
-        if (operationMode === 'pulse' && (filmType === 'F8+RCF' || filmType === 'F8+NDT1200')) {
-            // Для импульсных аппаратов и специальных пленок используем факторы из радионуклидных источников
-            // Используем Ir-192 как базовый источник для расчета
-            filmFactor = filmFactors['Ir-192'][filmType] || 1.0;
+        if (operationMode === 'pulse') {
+            // Для импульсных аппаратов используем специальную логику
+            if (filmType === 'D7' || filmType === 'F8+RCF' || filmType === 'F8+NDT1200') {
+                // Для этих трёх типов плёнок фактор уже учтен в номограмме
+                filmFactor = 1.0;
+            } else {
+                // Для остальных типов плёнок используем стандартные факторы
+                filmFactor = filmFactors['pulse'][filmType] || 1.0;
+            }
         } else {
-            filmFactor = filmFactors[operationMode][filmType] || 1.0;
+            // Для постоянных аппаратов - стандартная логика
+            filmFactor = filmFactors['constant'][filmType] || 1.0;
         }
 
         const adjustedExposure = baseExposure * filmFactor;
@@ -1167,7 +1237,7 @@
                 operationMode,
                 material,
                 filmType,
-                baseExposure: baseExposure / titaniumCoefficient, // базовое время без учета коэффициента титана
+                baseExposure: baseExposure / titaniumCoefficient,
                 titaniumCoefficient,
                 filmFactor,
                 baseFocus,
@@ -1421,6 +1491,7 @@
         document.getElementById('focusWarning').style.display = 'none';
         updateFocusDistance();
         updateCurrentFieldState();
+        updateFilmOptions();
         lastCalculationData = { method: null, data: null };
     }
 
