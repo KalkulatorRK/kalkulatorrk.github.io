@@ -12,3 +12,6 @@ Before non-trivial technical work:
 5. Prefer project skills over guessing; the user does not need to say "read skill" each time.
 
 Installed skills in this project: using-agent-skills, interview-me, source-driven-development, debugging-and-error-recovery, context-engineering, planning-and-task-breakdown, incremental-implementation, test-driven-development, code-review-and-quality, git-workflow-and-versioning, doubt-driven-development, frontend-ui-engineering, security-and-hardening.
+
+For frontend / visual UI work on this site, also use `.cursor/skills/impeccable/SKILL.md` (`/impeccable audit|polish|typeset|layout|critique`). Load `PRODUCT.md` and `DESIGN.md` first via the skill's context script when doing design passes.
+

@@ -32,3 +32,16 @@ git clone --depth 1 https://github.com/addyosmani/agent-skills.git /tmp/agent-sk
 cp -a /tmp/agent-skills-src/skills/test-driven-development/. .cursor/skills/test-driven-development/
 cp -a /tmp/agent-skills-src/references/. ./references/
 ```
+
+
+## Also installed: Impeccable
+
+Design skill from [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0):
+
+- `.cursor/skills/impeccable/` — `/impeccable` commands
+- `.cursor/hooks.json` — pre-edit design detector for UI writes
+- `.cursor/agents/impeccable-*.md` — specialist agents
+- `PRODUCT.md`, `DESIGN.md` — project design context
+- `.impeccable/critique/detect-baseline.md` — first detector pass
+
+Refresh: `npx impeccable update`
