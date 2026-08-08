@@ -508,11 +508,87 @@
             max-width: 75ch;
         }
 
+        .help-block {
+            margin-top: 28px;
+        }
+
+        .help-block > h2 {
+            margin: 0 0 8px;
+            font-size: 1.2rem;
+        }
+
+        .help-lead {
+            margin: 0 0 12px;
+            max-width: 75ch;
+            color: var(--ink-muted);
+            font-size: 0.92rem;
+        }
+
+        .faq {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+        }
+
+        .faq details {
+            border-top: 1px solid var(--line);
+        }
+
+        .faq details:first-child { border-top: none; }
+
+        .faq summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            font-weight: 700;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faq summary::-webkit-details-marker { display: none; }
+
+        .faq summary::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--ink-muted);
+            border-bottom: 2px solid var(--ink-muted);
+            transform: rotate(-45deg);
+            flex-shrink: 0;
+            transition: transform 160ms ease;
+        }
+
+        .faq details[open] summary::before {
+            transform: rotate(45deg);
+            margin-top: -2px;
+        }
+
+        .faq .faq-body {
+            padding: 0 14px 14px;
+            color: var(--ink);
+            font-size: 0.92rem;
+            max-width: 75ch;
+        }
+
+        .faq .faq-body p { margin: 0 0 8px; }
+        .faq .faq-body ul {
+            margin: 0 0 8px;
+            padding-left: 1.2em;
+        }
+        .faq .faq-body li { margin-bottom: 4px; }
+
+        .sticky-actions .btn-secondary.btn-help {
+            display: inline-flex;
+        }
+
         @media (max-width: 640px) {
-            .sticky-actions .btn-secondary { display: none; }
+            .sticky-actions #btnReset { display: none; }
             .sticky-summary { font-size: 0.88rem; }
             .page-head h1 { font-size: 1.2rem; }
             .doc { max-height: 42vh; }
+            .sticky-actions .btn { padding: 10px 10px; font-size: 0.82rem; }
         }
 
         @media print {
@@ -520,7 +596,7 @@
                 background: #fff;
             }
             .skip, .sticky-bar, .page-head, .form-col, .preview-toolbar,
-            .footer-note, .footnote-alert { display: none !important; }
+            .footer-note, .footnote-alert, .help-block { display: none !important; }
             .wrap { max-width: none; padding: 0; }
             .layout { display: block; }
             .preview-col .journal {
@@ -548,14 +624,15 @@
 </head>
 <body>
     <!--
-      THESIS: Техкарта РК собирается секциями как рабочий журнал, а не как «карточки-плитки» каталога калькуляторов; результат — печатный лист.
+      THESIS: Техкарта РК — типовой генератор с журналом секций и справкой FAQ; без ИИ-консультанта и внешних API.
       OWN-WORLD: холодный светлый нейтраль, один насыщенный синий акцент (#0b4f8c), Source Sans 3, плотные поля без side-tab и вложенных card.
-      STORY: дефектоскопист заполняет объект/стык → метод → источник → экспозицию, видит сводку сверху и лист справа, печатает A4.
-      FIRST VIEWPORT: sticky-сводка (объект/стык + «Сформировать»), открытая первая секция формы, превью документа.
+      STORY: заполнить параметры → проверить превью → скачать DOCX / печать → доработать файл под требования заказчика по FAQ.
+      FIRST VIEWPORT: sticky-сводка, превью листа, первая секция формы; справка ниже по странице.
       FORM: candidate 5 — sectioned accordion + sticky summary; seed 9acaf4b2.
-      FINISH: finish review + DESIGN.md update in this branch; detector clean on karta-nk.html
+      FINISH: FAQ + DOCX download; no AI assistant.
     -->
     <a class="skip" href="#form-root">К форме</a>
+    <a class="skip" href="#help-faq">К справке</a>
 
     <header class="sticky-bar" role="banner">
         <div class="brand">
@@ -564,8 +641,10 @@
             <div class="sticky-meta" id="stickyMeta">Заполните объект и номер стыка</div>
         </div>
         <div class="sticky-actions">
+            <button type="button" class="btn btn-secondary btn-help" id="btnHelp" aria-controls="help-faq">Справка</button>
             <button type="button" class="btn btn-secondary" id="btnReset">Сбросить</button>
-            <button type="button" class="btn btn-primary" id="btnPrint">Сформировать и печать</button>
+            <button type="button" class="btn btn-secondary" id="btnDocx">Скачать DOCX</button>
+            <button type="button" class="btn btn-primary" id="btnPrint">Печать</button>
         </div>
     </header>
 
@@ -858,7 +937,10 @@
                 <div class="journal">
                     <div class="preview-toolbar">
                         <h2 id="preview-heading">Документ</h2>
-                        <button type="button" class="btn btn-secondary" id="btnScrollForm">К форме</button>
+                        <div class="sticky-actions">
+                            <button type="button" class="btn btn-secondary" id="btnScrollForm">К форме</button>
+                            <button type="button" class="btn btn-secondary" id="btnDocxPreview">DOCX</button>
+                        </div>
                     </div>
                     <div class="doc" id="previewRoot">
                         <div class="doc-sheet" id="docSheet">
@@ -882,8 +964,132 @@
         </div>
 
         <p class="footnote-alert" role="note">
-            Черновик для подготовки техкарты. Перед применением сверяйте значения с действующей методикой, паспортом источника и требованиями заказчика.
+            Типовой черновик техкарты. ИИ-консультант не используется: все данные остаются в браузере.
+            Перед применением сверяйте значения с методикой ЛНК, паспортом источника и требованиями заказчика.
         </p>
+
+        <section class="help-block" id="help-faq" aria-labelledby="help-heading">
+            <h2 id="help-heading">Справка: как пользоваться генератором</h2>
+            <p class="help-lead">
+                Пошаговые разъяснения от заполнения секций до скачивания DOCX и доработки файла
+                под индивидуальные требования заказчика. ИИ-ассистента нет: помощь статическая и не требует API.
+            </p>
+
+            <div class="faq">
+                <details open>
+                    <summary>1. Что делает генератор и чего в нём нет</summary>
+                    <div class="faq-body">
+                        <p>Генератор собирает <strong>типовой черновик</strong> технологической карты РК по полям формы и показывает превью листа.</p>
+                        <ul>
+                            <li>Данные хранятся только в вашем браузере (черновик в localStorage).</li>
+                            <li>Нет ИИ-консультанта, чата и внешних расчётных API.</li>
+                            <li>Результат: превью на экране, печать A4 и файл <strong>.docx</strong> для правки в Word / LibreOffice.</li>
+                            <li>Типовая форма не покрывает все локальные бланки заказчика: финальную редакцию всегда делают у себя.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>2. Этап «Объект и стык»</summary>
+                    <div class="faq-body">
+                        <p>Заполните организацию / ЛНК, номер карты, объект (линию, позицию) и номер стыка. Дата и чертёж желательны для трассировки.</p>
+                        <p>Эти поля попадают в шапку документа и в sticky-сводку сверху. Без объекта и стыка техкарта обычно не идентифицируема на объекте.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>3. Этап «Материал и геометрия»</summary>
+                    <div class="faq-body">
+                        <p>Укажите марку материала и толщину стенки. Для труб добавьте диаметр и тип сварного соединения.</p>
+                        <p>Если у заказчика отдельные графы («основной металл / наплавленный», «номинал / фактическая»), допишите их уже в DOCX после скачивания.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>4. Этап «Метод и схема контроля»</summary>
+                    <div class="faq-body">
+                        <p>Выберите вид излучения, схему просвечивания, класс/категорию, число экспозиций, эталон чувствительности.</p>
+                        <p>Схему сверяйте с приложением ГОСТ&nbsp;Р&nbsp;50.05.07 и методикой ЛНК. Параметры фокуса можно уточнить в <a href="RK_final_with_detailed_help2.html" target="_blank" rel="noopener">калькуляторе параметров РК</a>.</p>
+                        <p>Если у заказчика обязательны эскиз схемы или номер схемы из альбома, приложите их при доработке DOCX.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>5. Этап «Источник и аппаратура»</summary>
+                    <div class="faq-body">
+                        <p>Впишите дефектоскоп/аппарат, номер источника, активность на дату контроля, фокусное пятно, плёнку/детектор и экраны.</p>
+                        <p>Активность можно предварительно посчитать в <a href="RK.html" target="_blank" rel="noopener">калькуляторе активности</a> и перенести значение сюда вручную.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>6. Этап «Геометрия и экспозиция»</summary>
+                    <div class="faq-body">
+                        <p>Обязательно укажите фокусное расстояние F. Остальное: SOD, режим кВ·мА (для РИП), время экспозиции, оптическая плотность, примечания.</p>
+                        <p>Время экспозиции удобно оценить в <a href="exposure_calculator.html" target="_blank" rel="noopener">калькуляторе экспозиции</a>, затем перенести в карту.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>7. Этап «Исполнители»</summary>
+                    <div class="faq-body">
+                        <p>Укажите дефектоскописта, уровень квалификации, кто проверил/утвердил, и ссылку на НД/методику.</p>
+                        <p>Наименования должностей в типовой форме общие («Дефектоскопист», «Проверил»). Если у заказчика нужны «Ведущий специалист НК», «Начальник ЛНК», грифы согласования или штамп ОТК — замените подписи в DOCX.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>8. Превью и проверка перед выгрузкой</summary>
+                    <div class="faq-body">
+                        <p>Справа (на телефоне — выше формы) лист обновляется по мере ввода. Статусы секций показывают, что ещё пусто.</p>
+                        <ul>
+                            <li>Проверьте объект, стык, схему, F и НД.</li>
+                            <li>Сверьте активность и экспозицию с паспортом и методикой.</li>
+                            <li>Кнопка «Печать» открывает системный диалог печати A4.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>9. Скачивание DOCX</summary>
+                    <div class="faq-body">
+                        <p>Нажмите <strong>«Скачать DOCX»</strong>. Файл формируется в браузере: на сервер ничего не отправляется.</p>
+                        <ul>
+                            <li>Имя файла строится из номера карты и стыка, например <code>TK-RK-001_S-12.docx</code>.</li>
+                            <li>Перед скачиванием проверяются обязательные поля; незаполненные подсветятся.</li>
+                            <li>Откройте файл в Microsoft Word, LibreOffice Writer или совместимом редакторе.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>10. Доработка DOCX под нюансы заказчика</summary>
+                    <div class="faq-body">
+                        <p>Типовая форма намеренно простая. Обычно после скачивания правят:</p>
+                        <ul>
+                            <li><strong>Шапку организации</strong> — логотип, реквизиты, код бланка, QR/штрихкод учёта.</li>
+                            <li><strong>Должности и блоки согласования</strong> — названия ролей, дополнительные подписи, даты визирования.</li>
+                            <li><strong>Локальные графы</strong> — категория трубопровода, класс опасности, зона контроля, температура, ограничения доступа.</li>
+                            <li><strong>Оформление</strong> — фирменные поля таблицы, нумерация листов «лист/листов», рамка по СТП предприятия.</li>
+                            <li><strong>Приложения</strong> — эскиз схемы, выкопировка изометрии, таблица участков экспозиций.</li>
+                            <li><strong>Нормативные ссылки</strong> — внутренние инструкции ЛНК, договорные требования заказчика сверх ГОСТ.</li>
+                        </ul>
+                        <p>Рекомендуемый порядок: сохранить типовой DOCX как «исходник» → «Сохранить как» под номер карты заказчика → править только копию → согласовать по регламенту ЛНК.</p>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>11. Частые вопросы</summary>
+                    <div class="faq-body">
+                        <p><strong>Почему нет ИИ-подсказок по расчётам?</strong> Расчёты через внешние API дороги, нестабильны на объекте без сети и не заменяют методику. Для чисел используйте калькуляторы сайта и НД.</p>
+                        <p><strong>Пропадает ли черновик?</strong> Черновик хранится в браузере на этом устройстве. Очистка сайта/кэша сотрёт его — после важных правок сразу скачивайте DOCX.</p>
+                        <p><strong>Можно ли подставить бланк заказчика один в один?</strong> Нет: генератор даёт типовой каркас. Полное совпадение с чужим бланком достигается доработкой DOCX или своим шаблоном Word.</p>
+                        <p><strong>Кто отвечает за итог?</strong> Пользователь и организация, применяющие документ. Сервис справочный.</p>
+                    </div>
+                </details>
+            </div>
+        </section>
+
         <p class="footer-note">
             Сервис независимого разработчика. Результаты носят справочный характер; ответственность за применение несёт пользователь.
             Связанные инструменты: <a href="RK.html">активность источника</a>,
@@ -891,6 +1097,8 @@
             <a href="RK_final_with_detailed_help2.html">параметры РК</a>.
         </p>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
     <script>
         (function () {
@@ -1106,7 +1314,7 @@
                 saveDraft();
             }
 
-            function validateForPrint() {
+            function validateRequired() {
                 let firstInvalid = null;
                 const requiredIds = ["org", "cardNo", "objectName", "jointId", "material", "thickness", "radiation", "scheme", "ffd"];
                 requiredIds.forEach(function (id) {
@@ -1123,6 +1331,182 @@
                 return true;
             }
 
+            function xmlEscape(s) {
+                return String(s)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
+
+            function docxParagraph(text, opts) {
+                opts = opts || {};
+                const bold = opts.bold ? '<w:b/>' : '';
+                const size = opts.size || 22;
+                const align = opts.align ? ('<w:jc w:val="' + opts.align + '"/>') : '';
+                const after = opts.after != null ? opts.after : 80;
+                return '<w:p><w:pPr>' + align + '<w:spacing w:after="' + after + '"/></w:pPr>' +
+                    '<w:r><w:rPr>' + bold + '<w:sz w:val="' + size + '"/><w:szCs w:val="' + size + '"/></w:rPr>' +
+                    '<w:t xml:space="preserve">' + xmlEscape(text) + '</w:t></w:r></w:p>';
+            }
+
+            function docxTableRow(label, value) {
+                const cell = function (text, width, header) {
+                    const shading = header
+                        ? '<w:shd w:val="clear" w:color="auto" w:fill="F3F6F9"/>'
+                        : '';
+                    return '<w:tc><w:tcPr><w:tcW w:w="' + width + '" w:type="dxa"/>' + shading +
+                        '<w:tcBorders>' +
+                        '<w:top w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                        '<w:left w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                        '<w:bottom w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                        '<w:right w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                        '</w:tcBorders></w:tcPr>' +
+                        '<w:p><w:r><w:rPr>' + (header ? '<w:b/>' : '') +
+                        '<w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr>' +
+                        '<w:t xml:space="preserve">' + xmlEscape(text || "—") + '</w:t></w:r></w:p></w:tc>';
+                };
+                return '<w:tr>' + cell(label, 3500, true) + cell(value || "—", 5500, false) + '</w:tr>';
+            }
+
+            function buildDocRows(data) {
+                const rad = radiationLabels[data.radiation] || data.radiation;
+                const rows = [
+                    ["Организация / ЛНК", data.org],
+                    ["Номер карты", data.cardNo],
+                    ["Дата", formatDate(data.cardDate)],
+                    ["Объект / линия", data.objectName],
+                    ["Стык / соединение", data.jointId],
+                    ["Чертёж / изометрия", data.drawing],
+                    ["Материал", data.material],
+                    ["Толщина", withUnit(data.thickness, "мм")],
+                    ["Диаметр", withUnit(data.diameter, "мм")],
+                    ["Тип соединения", data.weldType],
+                    ["Вид излучения", rad],
+                    ["Схема просвечивания", data.scheme],
+                    ["Класс / категория", data.sensitivityClass],
+                    ["Число экспозиций", data.exposures],
+                    ["Эталон чувствительности", data.iqi],
+                    ["Чувствительность", data.sensitivity ? data.sensitivity + " %" : ""],
+                    ["Аппарат / дефектоскоп", data.device],
+                    ["Номер источника", data.sourceNo],
+                    ["Активность", withUnit(data.activity, "Ки")],
+                    ["Фокусное пятно", withUnit(data.focalSpot, "мм")],
+                    ["Плёнка / детектор", data.film],
+                    ["Экраны", data.screens],
+                    ["Фокусное расстояние F", withUnit(data.ffd, "мм")],
+                    ["Расстояние источник–объект", withUnit(data.sod, "мм")],
+                    ["Режим (кВ·мА)", data.kv],
+                    ["Время экспозиции", data.expTime],
+                    ["Оптическая плотность", data.density],
+                    ["НД / методика", data.ndRef],
+                    ["Примечания", data.notes],
+                    ["Дефектоскопист", [data.operator, data.level ? ("ур. " + data.level) : ""].filter(Boolean).join(", ")],
+                    ["Проверил / утвердил", data.approver]
+                ];
+                return rows.map(function (r) { return docxTableRow(r[0], r[1]); }).join("");
+            }
+
+            function safeFilePart(s) {
+                return String(s || "")
+                    .replace(/[\\/:*?"<>|]+/g, "-")
+                    .replace(/\s+/g, "_")
+                    .replace(/_+/g, "_")
+                    .replace(/^_|_$/g, "")
+                    .slice(0, 40);
+            }
+
+            function downloadDocx() {
+                if (!validateRequired()) return;
+                if (typeof JSZip === "undefined") {
+                    window.alert("Не удалось загрузить модуль DOCX. Проверьте сеть и обновите страницу.");
+                    return;
+                }
+                refresh();
+                const data = collect();
+                const contentTypes =
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+                    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+                    '<Default Extension="xml" ContentType="application/xml"/>' +
+                    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+                    '</Types>';
+                const rels =
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+                    '</Relationships>';
+                const docRels =
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+
+                const note =
+                    "Типовой черновик генератора Калькулятор РК. Доработайте под бланк и должности заказчика " +
+                    "(см. справку на странице генератора). ИИ-консультант не использовался.";
+
+                const documentXml =
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
+                    '<w:body>' +
+                    docxParagraph("Технологическая карта радиографического контроля", { bold: true, size: 28, align: "center", after: 120 }) +
+                    docxParagraph(
+                        [data.org, data.cardNo ? ("карта № " + data.cardNo) : "", formatDate(data.cardDate)]
+                            .filter(Boolean).join(" · ") || "Черновик",
+                        { align: "center", size: 18, after: 200 }
+                    ) +
+                    '<w:tbl><w:tblPr><w:tblW w:w="9000" w:type="dxa"/>' +
+                    '<w:tblBorders>' +
+                    '<w:top w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                    '<w:left w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                    '<w:bottom w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                    '<w:right w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                    '<w:insideH w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                    '<w:insideV w:val="single" w:sz="4" w:color="8A9AAB"/>' +
+                    '</w:tblBorders></w:tblPr>' +
+                    buildDocRows(data) +
+                    '</w:tbl>' +
+                    docxParagraph("", { after: 200 }) +
+                    docxParagraph(
+                        "Дефектоскопист: " + ([data.operator, data.level ? ("ур. " + data.level) : ""].filter(Boolean).join(", ") || "_______________"),
+                        { size: 18, after: 60 }
+                    ) +
+                    docxParagraph("Подпись / дата: ____________________", { size: 18, after: 200 }) +
+                    docxParagraph(
+                        "Проверил: " + (data.approver || "_______________"),
+                        { size: 18, after: 60 }
+                    ) +
+                    docxParagraph("Подпись / дата: ____________________", { size: 18, after: 280 }) +
+                    docxParagraph(note, { size: 16, after: 0 }) +
+                    '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>' +
+                    '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr>' +
+                    '</w:body></w:document>';
+
+                const zip = new JSZip();
+                zip.file("[Content_Types].xml", contentTypes);
+                zip.folder("_rels").file(".rels", rels);
+                const word = zip.folder("word");
+                word.file("document.xml", documentXml);
+                word.folder("_rels").file("document.xml.rels", docRels);
+
+                const name = [
+                    safeFilePart(data.cardNo) || "TK-RK",
+                    safeFilePart(data.jointId) || "karta"
+                ].join("_") + ".docx";
+
+                zip.generateAsync({ type: "blob" }).then(function (blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = name;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+                }).catch(function () {
+                    window.alert("Не удалось сформировать DOCX. Попробуйте ещё раз или используйте печать.");
+                });
+            }
+
             function resetForm() {
                 form.reset();
                 if (!val("cardDate")) setVal("cardDate", todayISO());
@@ -1137,9 +1521,19 @@
             form.addEventListener("change", refresh);
 
             document.getElementById("btnPrint").addEventListener("click", function () {
-                if (!validateForPrint()) return;
+                if (!validateRequired()) return;
                 refresh();
                 window.print();
+            });
+
+            document.getElementById("btnDocx").addEventListener("click", downloadDocx);
+            document.getElementById("btnDocxPreview").addEventListener("click", downloadDocx);
+
+            document.getElementById("btnHelp").addEventListener("click", function () {
+                const help = document.getElementById("help-faq");
+                help.scrollIntoView({ behavior: "smooth", block: "start" });
+                const first = help.querySelector("details");
+                if (first) first.open = true;
             });
 
             document.getElementById("btnReset").addEventListener("click", function () {
