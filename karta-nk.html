@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Технологическая карта РК | Калькулятор РК</title>
+    <meta name="description" content="Формирование технологической карты радиографического контроля. Заполнение параметров и печать документа для специалистов НК.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #e8eef4;
+            --bg-panel: #f4f7fa;
+            --surface: #ffffff;
+            --ink: #1a2332;
+            --ink-muted: #3d4a5c;
+            --line: #c5d0dc;
+            --line-strong: #8a9aab;
+            --accent: #0b4f8c;
+            --accent-hover: #093f70;
+            --accent-soft: #d6e6f5;
+            --danger: #9b1c1c;
+            --danger-bg: #fde8e8;
+            --ok: #0f5c38;
+            --ok-bg: #e3f5ec;
+            --warn: #7a4b00;
+            --warn-bg: #fff3d6;
+            --shadow: 0 1px 2px rgba(26, 35, 50, 0.06), 0 8px 24px rgba(26, 35, 50, 0.06);
+            --radius: 8px;
+            --space: 8px;
+            --font: "Source Sans 3", "Segoe UI", sans-serif;
+            --sticky-h: 64px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: var(--font);
+            font-size: 16px;
+            line-height: 1.45;
+            color: var(--ink);
+            background:
+                radial-gradient(1200px 500px at 10% -10%, #d5e4f2 0%, transparent 55%),
+                radial-gradient(900px 400px at 100% 0%, #cfd9e6 0%, transparent 50%),
+                var(--bg);
+            min-height: 100vh;
+        }
+
+        a { color: var(--accent); }
+
+        .skip {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            background: var(--accent);
+            color: #fff;
+            padding: 8px 12px;
+            z-index: 1000;
+        }
+        .skip:focus { left: 8px; top: 8px; }
+
+        .sticky-bar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: var(--sticky-h);
+            padding: 10px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .sticky-bar .brand {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .sticky-bar .brand a {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--ink-muted);
+        }
+
+        .sticky-bar .brand a:hover { color: var(--accent); }
+
+        .sticky-summary {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sticky-meta {
+            font-size: 0.8rem;
+            color: var(--ink-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sticky-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            appearance: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font: inherit;
+            font-weight: 700;
+            font-size: 0.92rem;
+            padding: 10px 14px;
+            cursor: pointer;
+            min-height: 44px;
+            transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+        }
+
+        .btn:focus-visible {
+            outline: 3px solid #5b9fd4;
+            outline-offset: 2px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-primary:disabled {
+            background: #7a92a8;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--ink);
+            border-color: var(--line-strong);
+        }
+        .btn-secondary:hover { background: var(--bg-panel); }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 12px 16px 48px;
+        }
+
+        .page-head {
+            margin: 4px 0 12px;
+        }
+
+        .page-head h1 {
+            margin: 0;
+            font-size: 1.35rem;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .page-head p { display: none; }
+
+        /* Mobile first viewport: sticky + document + form; keep h1 for a11y only */
+        @media (max-width: 959px) {
+            .page-head {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
+            }
+        }
+
+        .layout {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-col { order: 2; }
+        .preview-col { order: 1; }
+
+        @media (min-width: 960px) {
+            .layout {
+                grid-template-columns: minmax(0, 1fr) minmax(320px, 0.95fr);
+                align-items: start;
+            }
+            .form-col { order: 1; }
+            .preview-col {
+                order: 2;
+                position: sticky;
+                top: calc(var(--sticky-h) + 12px);
+            }
+            .page-head h1 { font-size: 1.55rem; }
+        }
+
+        .journal {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+        }
+
+        .panel-head {
+            padding: 12px 14px 0;
+        }
+
+        .panel-head h2 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .panel-head p {
+            margin: 4px 0 0;
+            font-size: 0.88rem;
+            color: var(--ink-muted);
+        }
+
+        .sections { padding: 0 0 4px; }
+
+        details.section {
+            border: none;
+            border-top: 1px solid var(--line);
+            border-radius: 0;
+            margin: 0;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        details.section[open] {
+            background: var(--bg-panel);
+        }
+
+        details.section summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            font-weight: 700;
+            min-height: 48px;
+            user-select: none;
+        }
+
+        details.section summary::-webkit-details-marker { display: none; }
+
+        details.section summary::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--ink-muted);
+            border-bottom: 2px solid var(--ink-muted);
+            transform: rotate(-45deg);
+            transition: transform 160ms ease;
+            flex-shrink: 0;
+        }
+
+        details.section[open] summary::before {
+            transform: rotate(45deg);
+            margin-top: -2px;
+        }
+
+        .section-status {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            background: #e7edf3;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        details.section.is-complete .section-status {
+            color: var(--ok);
+            background: var(--ok-bg);
+        }
+
+        details.section.is-warn .section-status {
+            color: var(--warn);
+            background: var(--warn-bg);
+        }
+
+        .section-body {
+            padding: 0 14px 14px;
+            border-top: 1px solid var(--line);
+            background: var(--surface);
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        @media (min-width: 640px) {
+            .grid.cols-2 { grid-template-columns: 1fr 1fr; }
+            .grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        }
+
+        .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+        .field label {
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .field .hint {
+            font-size: 0.78rem;
+            color: var(--ink-muted);
+        }
+
+        .control {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+
+        .control input,
+        .control select,
+        .control textarea {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            border: 1px solid var(--line-strong);
+            border-radius: 6px;
+            font: inherit;
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .control textarea {
+            min-height: 88px;
+            resize: vertical;
+        }
+
+        .control input:focus,
+        .control select:focus,
+        .control textarea:focus {
+            outline: 3px solid #5b9fd4;
+            outline-offset: 1px;
+            border-color: var(--accent);
+        }
+
+        .control .unit {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            margin-left: -1px;
+            border: 1px solid var(--line-strong);
+            border-radius: 0 6px 6px 0;
+            background: #eef2f6;
+            color: var(--ink-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .control.has-unit input {
+            border-radius: 6px 0 0 6px;
+        }
+
+        .field.is-error input,
+        .field.is-error select,
+        .field.is-error textarea {
+            border-color: var(--danger);
+            background: #fff8f8;
+        }
+
+        .field .error {
+            display: none;
+            font-size: 0.78rem;
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .field.is-error .error { display: block; }
+
+        .inline-help {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--ink-muted);
+        }
+
+        .inline-help summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .footnote-alert {
+            margin-top: 20px;
+            padding: 10px 0 0;
+            font-size: 0.82rem;
+            color: var(--ink-muted);
+            border-top: 1px solid var(--line);
+            max-width: 75ch;
+        }
+
+        .preview-col .journal { overflow: hidden; }
+
+        .preview-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--line);
+            background: var(--surface);
+        }
+
+        .preview-toolbar h2 {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .doc {
+            padding: 12px;
+            background: var(--bg-panel);
+            max-height: min(52vh, 520px);
+            overflow: auto;
+        }
+
+        @media (min-width: 960px) {
+            .doc { max-height: calc(100vh - var(--sticky-h) - 100px); }
+        }
+
+        .doc-sheet {
+            background: #fff;
+            border: 1px solid var(--line-strong);
+            padding: 14px 12px;
+        }
+
+        .doc-sheet h3 {
+            margin: 0 0 4px;
+            text-align: center;
+            font-size: 1.05rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .doc-sheet .doc-sub {
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--ink-muted);
+            margin-bottom: 14px;
+        }
+
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .doc-table th,
+        .doc-table td {
+            border: 1px solid var(--line-strong);
+            padding: 6px 8px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .doc-table th {
+            width: 38%;
+            background: #f3f6f9;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .doc-table td.empty {
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+
+        .doc-sign {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 18px;
+            font-size: 0.82rem;
+        }
+
+        .doc-sign .line {
+            border-top: 1px solid var(--ink);
+            margin-top: 28px;
+            padding-top: 4px;
+            color: var(--ink-muted);
+        }
+
+        .footer-note {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--ink-muted);
+            max-width: 75ch;
+        }
+
+        @media (max-width: 640px) {
+            .sticky-actions .btn-secondary { display: none; }
+            .sticky-summary { font-size: 0.88rem; }
+            .page-head h1 { font-size: 1.2rem; }
+            .doc { max-height: 42vh; }
+        }
+
+        @media print {
+            body {
+                background: #fff;
+            }
+            .skip, .sticky-bar, .page-head, .form-col, .preview-toolbar,
+            .footer-note, .footnote-alert { display: none !important; }
+            .wrap { max-width: none; padding: 0; }
+            .layout { display: block; }
+            .preview-col .journal {
+                border: none;
+            }
+            .doc {
+                padding: 0;
+                background: #fff;
+                max-height: none;
+                overflow: visible;
+            }
+            .doc-sheet {
+                border: none;
+                padding: 0;
+            }
+            .doc-table th, .doc-table td {
+                border-color: #000;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; scroll-behavior: auto !important; }
+        }
+    </style>
+</head>
+<body>
+    <!--
+      THESIS: Техкарта РК собирается секциями как рабочий журнал, а не как «карточки-плитки» каталога калькуляторов; результат — печатный лист.
+      OWN-WORLD: холодный светлый нейтраль, один насыщенный синий акцент (#0b4f8c), Source Sans 3, плотные поля без side-tab и вложенных card.
+      STORY: дефектоскопист заполняет объект/стык → метод → источник → экспозицию, видит сводку сверху и лист справа, печатает A4.
+      FIRST VIEWPORT: sticky-сводка (объект/стык + «Сформировать»), открытая первая секция формы, превью документа.
+      FORM: candidate 5 — sectioned accordion + sticky summary; seed 9acaf4b2.
+      FINISH: finish review + DESIGN.md update in this branch; detector clean on karta-nk.html
+    -->
+    <a class="skip" href="#form-root">К форме</a>
+
+    <header class="sticky-bar" role="banner">
+        <div class="brand">
+            <a href="index.html">← Калькулятор РК</a>
+            <div class="sticky-summary" id="stickyTitle">Технологическая карта РК</div>
+            <div class="sticky-meta" id="stickyMeta">Заполните объект и номер стыка</div>
+        </div>
+        <div class="sticky-actions">
+            <button type="button" class="btn btn-secondary" id="btnReset">Сбросить</button>
+            <button type="button" class="btn btn-primary" id="btnPrint">Сформировать и печать</button>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <header class="page-head">
+            <h1>Технологическая карта радиографического контроля</h1>
+        </header>
+
+        <div class="layout">
+            <div class="form-col">
+                <section class="journal" aria-labelledby="form-heading">
+                    <div class="panel-head">
+                        <h2 id="form-heading">Параметры контроля</h2>
+                        <p>Секции журнала. Статус справа показывает заполненность. ГОСТ&nbsp;Р&nbsp;50.05.07-2018.</p>
+                    </div>
+
+                    <form id="form-root" class="sections" novalidate>
+                        <details class="section" id="sec-object" open>
+                            <summary>
+                                Объект и стык
+                                <span class="section-status" data-status>не заполнено</span>
+                            </summary>
+                            <div class="section-body">
+                                <div class="grid cols-2">
+                                    <div class="field" data-required>
+                                        <label for="org">Организация / ЛНК</label>
+                                        <div class="control"><input id="org" name="org" type="text" autocomplete="organization" placeholder="Например, ООО «…»"></div>
+                                        <span class="error">Укажите организацию</span>
+                                    </div>
+                                    <div class="field" data-required>
+                                        <label for="cardNo">Номер карты</label>
+                                        <div class="control"><input id="cardNo" name="cardNo" type="text" placeholder="ТК-РК-001"></div>
+                                        <span class="error">Укажите номер карты</span>
+                                    </div>
+                                    <div class="field" data-required>
+                                        <label for="objectName">Объект / линия</label>
+                                        <div class="control"><input id="objectName" name="objectName" type="text" placeholder="Установка, трубопровод, позиция"></div>
+                                        <span class="error">Укажите объект</span>
+                                    </div>
+                                    <div class="field" data-required>
+                                        <label for="jointId">Номер стыка / сварного соединения</label>
+                                        <div class="control"><input id="jointId" name="jointId" type="text" placeholder="С-12"></div>
+                                        <span class="error">Укажите номер стыка</span>
+                                    </div>
+                                    <div class="field">
+                                        <label for="drawing">Чертёж / изометрия</label>
+                                        <div class="control"><input id="drawing" name="drawing" type="text"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="cardDate">Дата</label>
+                                        <div class="control"><input id="cardDate" name="cardDate" type="date"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <details class="section" id="sec-material">
+                            <summary>
+                                Материал и геометрия изделия
+                                <span class="section-status" data-status>не заполнено</span>
+                            </summary>
+                            <div class="section-body">
+                                <div class="grid cols-2">
+                                    <div class="field" data-required>
+                                        <label for="material">Марка материала</label>
+                                        <div class="control"><input id="material" name="material" type="text" placeholder="09Г2С, 12Х18Н10Т…"></div>
+                                        <span class="error">Укажите материал</span>
+                                    </div>
+                                    <div class="field" data-required>
+                                        <label for="thickness">Толщина стенки</label>
+                                        <div class="control has-unit">
+                                            <input id="thickness" name="thickness" type="number" min="0.1" step="0.1" inputmode="decimal">
+                                            <span class="unit">мм</span>
+                                        </div>
+                                        <span class="error">Укажите толщину</span>
+                                    </div>
+                                    <div class="field">
+                                        <label for="diameter">Диаметр (для труб)</label>
+                                        <div class="control has-unit">
+                                            <input id="diameter" name="diameter" type="number" min="0" step="0.1" inputmode="decimal">
+                                            <span class="unit">мм</span>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="weldType">Тип сварного соединения</label>
+                                        <div class="control">
+                                            <select id="weldType" name="weldType">
+                                                <option value="">— выберите —</option>
+                                                <option>Стыковое</option>
+                                                <option>Угловое</option>
+                                                <option>Тавровое</option>
+                                                <option>Нахлёсточное</option>
+                                                <option>Прочее</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <details class="section" id="sec-method">
+                            <summary>
+                                Метод и схема контроля
+                                <span class="section-status" data-status>не заполнено</span>
+                            </summary>
+                            <div class="section-body">
+                                <div class="grid cols-2">
+                                    <div class="field" data-required>
+                                        <label for="radiation">Вид излучения</label>
+                                        <div class="control">
+                                            <select id="radiation" name="radiation">
+                                                <option value="">— выберите —</option>
+                                                <option value="gamma-se75">Гамма, Se-75</option>
+                                                <option value="gamma-ir192">Гамма, Ir-192</option>
+                                                <option value="xray">Рентген (РИП / РАП)</option>
+                                            </select>
+                                        </div>
+                                        <span class="error">Выберите вид излучения</span>
+                                    </div>
+                                    <div class="field" data-required>
+                                        <label for="scheme">Схема просвечивания</label>
+                                        <div class="control">
+                                            <select id="scheme" name="scheme">
+                                                <option value="">— выберите —</option>
+                                                <option>Через две стенки</option>
+                                                <option>Через одну стенку</option>
+                                                <option>Эллипс / панорама</option>
+                                                <option>По ГОСТ Р 50.05.07 (приложение)</option>
+                                                <option>По методике организации</option>
+                                            </select>
+                                        </div>
+                                        <span class="error">Укажите схему</span>
+                                    </div>
+                                    <div class="field">
+                                        <label for="sensitivityClass">Класс / категория контроля</label>
+                                        <div class="control"><input id="sensitivityClass" name="sensitivityClass" type="text" placeholder="например, А / 2"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="exposures">Число экспозиций</label>
+                                        <div class="control"><input id="exposures" name="exposures" type="number" min="1" step="1" value="1"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="iqi">Эталон чувствительности (ИК)</label>
+                                        <div class="control"><input id="iqi" name="iqi" type="text" placeholder="проволочный / канавочный"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="sensitivity">Требуемая чувствительность</label>
+                                        <div class="control has-unit">
+                                            <input id="sensitivity" name="sensitivity" type="text" placeholder="например, 2,0">
+                                            <span class="unit">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <details class="inline-help">
+                                    <summary>Справка по схемам</summary>
+                                    <p>Выбор схемы зависит от диаметра, доступа и требований НД. Сверяйте с приложением Г ГОСТ&nbsp;Р&nbsp;50.05.07-2018 и методикой ЛНК. Параметры фокуса можно уточнить в <a href="RK_final_with_detailed_help2.html" target="_blank" rel="noopener">калькуляторе параметров РК</a>.</p>
+                                </details>
+                            </div>
+                        </details>
+
+                        <details class="section" id="sec-source">
+                            <summary>
+                                Источник и аппаратура
+                                <span class="section-status" data-status>не заполнено</span>
+                            </summary>
+                            <div class="section-body">
+                                <div class="grid cols-2">
+                                    <div class="field">
+                                        <label for="device">Дефектоскоп / аппарат</label>
+                                        <div class="control"><input id="device" name="device" type="text" placeholder="модель, зав. №"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="sourceNo">Номер источника</label>
+                                        <div class="control"><input id="sourceNo" name="sourceNo" type="text"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="activity">Активность (на дату контроля)</label>
+                                        <div class="control has-unit">
+                                            <input id="activity" name="activity" type="number" min="0" step="0.01" inputmode="decimal">
+                                            <span class="unit">Ки</span>
+                                        </div>
+                                        <span class="hint"><a href="RK.html" target="_blank" rel="noopener">Рассчитать активность</a></span>
+                                    </div>
+                                    <div class="field">
+                                        <label for="focalSpot">Фокусное пятно</label>
+                                        <div class="control has-unit">
+                                            <input id="focalSpot" name="focalSpot" type="number" min="0" step="0.1" inputmode="decimal">
+                                            <span class="unit">мм</span>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="film">Плёнка / детектор</label>
+                                        <div class="control"><input id="film" name="film" type="text" placeholder="тип, класс"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="screens">Усиливающие экраны</label>
+                                        <div class="control"><input id="screens" name="screens" type="text" placeholder="Pb, мм"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <details class="section" id="sec-exposure">
+                            <summary>
+                                Геометрия и экспозиция
+                                <span class="section-status" data-status>не заполнено</span>
+                            </summary>
+                            <div class="section-body">
+                                <div class="grid cols-2">
+                                    <div class="field" data-required>
+                                        <label for="ffd">Фокусное расстояние (F)</label>
+                                        <div class="control has-unit">
+                                            <input id="ffd" name="ffd" type="number" min="1" step="1" inputmode="decimal">
+                                            <span class="unit">мм</span>
+                                        </div>
+                                        <span class="error">Укажите F</span>
+                                    </div>
+                                    <div class="field">
+                                        <label for="sod">Расстояние источник–объект</label>
+                                        <div class="control has-unit">
+                                            <input id="sod" name="sod" type="number" min="0" step="1" inputmode="decimal">
+                                            <span class="unit">мм</span>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="kv">Напряжение / режим (для РИП)</label>
+                                        <div class="control has-unit">
+                                            <input id="kv" name="kv" type="text" placeholder="кВ / мА">
+                                            <span class="unit">кВ·мА</span>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="expTime">Время экспозиции</label>
+                                        <div class="control has-unit">
+                                            <input id="expTime" name="expTime" type="text" placeholder="мин : с">
+                                            <span class="unit">мин</span>
+                                        </div>
+                                        <span class="hint"><a href="exposure_calculator.html" target="_blank" rel="noopener">Калькулятор экспозиции</a></span>
+                                    </div>
+                                    <div class="field">
+                                        <label for="density">Оптическая плотность (диапазон)</label>
+                                        <div class="control"><input id="density" name="density" type="text" placeholder="например, 1,5…3,5"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="notes">Примечания</label>
+                                        <div class="control"><textarea id="notes" name="notes" rows="3" placeholder="Ограничения доступа, маркировка, особые условия"></textarea></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+
+                        <details class="section" id="sec-people">
+                            <summary>
+                                Исполнители
+                                <span class="section-status" data-status>не заполнено</span>
+                            </summary>
+                            <div class="section-body">
+                                <div class="grid cols-2">
+                                    <div class="field">
+                                        <label for="operator">Дефектоскопист</label>
+                                        <div class="control"><input id="operator" name="operator" type="text" autocomplete="name"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="level">Уровень квалификации</label>
+                                        <div class="control">
+                                            <select id="level" name="level">
+                                                <option value="">—</option>
+                                                <option>I</option>
+                                                <option>II</option>
+                                                <option>III</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="approver">Проверил / утвердил</label>
+                                        <div class="control"><input id="approver" name="approver" type="text"></div>
+                                    </div>
+                                    <div class="field">
+                                        <label for="ndRef">НД / методика</label>
+                                        <div class="control"><input id="ndRef" name="ndRef" type="text" value="ГОСТ Р 50.05.07-2018"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+                    </form>
+                </section>
+            </div>
+
+            <aside class="preview-col" aria-labelledby="preview-heading">
+                <div class="journal">
+                    <div class="preview-toolbar">
+                        <h2 id="preview-heading">Документ</h2>
+                        <button type="button" class="btn btn-secondary" id="btnScrollForm">К форме</button>
+                    </div>
+                    <div class="doc" id="previewRoot">
+                        <div class="doc-sheet" id="docSheet">
+                            <h3>Технологическая карта<br>радиографического контроля</h3>
+                            <div class="doc-sub" id="docSub">Черновик · заполните поля слева</div>
+                            <table class="doc-table" id="docTable"></table>
+                            <div class="doc-sign">
+                                <div>
+                                    <div id="signOp"></div>
+                                    <div class="line">Дефектоскопист, подпись</div>
+                                </div>
+                                <div>
+                                    <div id="signAp"></div>
+                                    <div class="line">Проверил, подпись</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <p class="footnote-alert" role="note">
+            Черновик для подготовки техкарты. Перед применением сверяйте значения с действующей методикой, паспортом источника и требованиями заказчика.
+        </p>
+        <p class="footer-note">
+            Сервис независимого разработчика. Результаты носят справочный характер; ответственность за применение несёт пользователь.
+            Связанные инструменты: <a href="RK.html">активность источника</a>,
+            <a href="exposure_calculator.html">время экспозиции</a>,
+            <a href="RK_final_with_detailed_help2.html">параметры РК</a>.
+        </p>
+    </main>
+
+    <script>
+        (function () {
+            const STORAGE_KEY = "karta-nk-draft-v1";
+
+            const fields = [
+                "org", "cardNo", "objectName", "jointId", "drawing", "cardDate",
+                "material", "thickness", "diameter", "weldType",
+                "radiation", "scheme", "sensitivityClass", "exposures", "iqi", "sensitivity",
+                "device", "sourceNo", "activity", "focalSpot", "film", "screens",
+                "ffd", "sod", "kv", "expTime", "density", "notes",
+                "operator", "level", "approver", "ndRef"
+            ];
+
+            const sectionRequired = {
+                "sec-object": ["org", "cardNo", "objectName", "jointId"],
+                "sec-material": ["material", "thickness"],
+                "sec-method": ["radiation", "scheme"],
+                "sec-source": [],
+                "sec-exposure": ["ffd"],
+                "sec-people": []
+            };
+
+            const radiationLabels = {
+                "gamma-se75": "Гамма-излучение, Se-75",
+                "gamma-ir192": "Гамма-излучение, Ir-192",
+                "xray": "Рентгеновское излучение"
+            };
+
+            const form = document.getElementById("form-root");
+            const stickyTitle = document.getElementById("stickyTitle");
+            const stickyMeta = document.getElementById("stickyMeta");
+            const docSub = document.getElementById("docSub");
+            const docTable = document.getElementById("docTable");
+            const signOp = document.getElementById("signOp");
+            const signAp = document.getElementById("signAp");
+
+            function el(id) { return document.getElementById(id); }
+
+            function val(id) {
+                const node = el(id);
+                return node ? String(node.value || "").trim() : "";
+            }
+
+            function setVal(id, value) {
+                const node = el(id);
+                if (node && value != null) node.value = value;
+            }
+
+            function todayISO() {
+                const d = new Date();
+                const m = String(d.getMonth() + 1).padStart(2, "0");
+                const day = String(d.getDate()).padStart(2, "0");
+                return d.getFullYear() + "-" + m + "-" + day;
+            }
+
+            function formatDate(iso) {
+                if (!iso) return "";
+                const p = iso.split("-");
+                if (p.length !== 3) return iso;
+                return p[2] + "." + p[1] + "." + p[0];
+            }
+
+            function collect() {
+                const data = {};
+                fields.forEach(function (id) { data[id] = val(id); });
+                return data;
+            }
+
+            function saveDraft() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(collect()));
+                } catch (e) { /* ignore quota */ }
+            }
+
+            function loadDraft() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return false;
+                    const data = JSON.parse(raw);
+                    fields.forEach(function (id) {
+                        if (data[id] != null) setVal(id, data[id]);
+                    });
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function markFieldError(id, on) {
+                const field = el(id) && el(id).closest(".field");
+                if (field) field.classList.toggle("is-error", !!on);
+            }
+
+            function updateSectionStatus(secId) {
+                const sec = document.getElementById(secId);
+                if (!sec) return;
+                const req = sectionRequired[secId] || [];
+                const status = sec.querySelector("[data-status]");
+                if (!req.length) {
+                    const defaults = { ndRef: "ГОСТ Р 50.05.07-2018", exposures: "1" };
+                    const any = Array.prototype.some.call(
+                        sec.querySelectorAll("input, select, textarea"),
+                        function (n) {
+                            const v = String(n.value || "").trim();
+                            if (!v) return false;
+                            if (defaults[n.id] && v === defaults[n.id]) return false;
+                            return true;
+                        }
+                    );
+                    sec.classList.toggle("is-complete", any);
+                    sec.classList.remove("is-warn");
+                    if (status) status.textContent = any ? "есть данные" : "не заполнено";
+                    return;
+                }
+                let filled = 0;
+                req.forEach(function (id) {
+                    if (val(id)) filled += 1;
+                });
+                const complete = filled === req.length;
+                const partial = filled > 0 && !complete;
+                sec.classList.toggle("is-complete", complete);
+                sec.classList.toggle("is-warn", partial);
+                if (status) {
+                    status.textContent = complete ? "готово" : (partial ? filled + "/" + req.length : "не заполнено");
+                }
+            }
+
+            function updateSticky(data) {
+                if (data.objectName || data.jointId) {
+                    stickyTitle.textContent = [
+                        data.objectName || "объект не указан",
+                        data.jointId ? ("стык " + data.jointId) : "стык не указан"
+                    ].join(" · ");
+                } else {
+                    stickyTitle.textContent = "Технологическая карта РК";
+                }
+
+                const meta = [];
+                if (data.cardNo) meta.push("№ " + data.cardNo);
+                if (data.material) meta.push(data.material);
+                if (data.thickness) meta.push(data.thickness + " мм");
+                if (data.radiation) meta.push(radiationLabels[data.radiation] || data.radiation);
+                stickyMeta.textContent = meta.length ? meta.join(" · ") : "Заполните объект и номер стыка";
+            }
+
+            function row(th, td) {
+                const empty = !td;
+                return "<tr><th scope=\"row\">" + th + "</th><td class=\"" + (empty ? "empty" : "") + "\">" +
+                    (empty ? "—" : escapeHtml(td)) + "</td></tr>";
+            }
+
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
+
+            function withUnit(v, unit) {
+                if (!v) return "";
+                return v + " " + unit;
+            }
+
+            function renderPreview(data) {
+                const sub = [
+                    data.org || "",
+                    data.cardNo ? "карта № " + data.cardNo : "",
+                    data.cardDate ? formatDate(data.cardDate) : ""
+                ].filter(Boolean);
+                docSub.textContent = sub.length ? sub.join(" · ") : "Черновик · заполните поля журнала";
+
+                const rad = radiationLabels[data.radiation] || data.radiation;
+                let html = "";
+                html += row("Объект / линия", data.objectName);
+                html += row("Стык / соединение", data.jointId);
+                html += row("Чертёж / изометрия", data.drawing);
+                html += row("Материал", data.material);
+                html += row("Толщина", withUnit(data.thickness, "мм"));
+                html += row("Диаметр", withUnit(data.diameter, "мм"));
+                html += row("Тип соединения", data.weldType);
+                html += row("Вид излучения", rad);
+                html += row("Схема просвечивания", data.scheme);
+                html += row("Класс / категория", data.sensitivityClass);
+                html += row("Число экспозиций", data.exposures);
+                html += row("Эталон чувствительности", data.iqi);
+                html += row("Чувствительность", data.sensitivity ? data.sensitivity + " %" : "");
+                html += row("Аппарат / дефектоскоп", data.device);
+                html += row("Номер источника", data.sourceNo);
+                html += row("Активность", withUnit(data.activity, "Ки"));
+                html += row("Фокусное пятно", withUnit(data.focalSpot, "мм"));
+                html += row("Плёнка / детектор", data.film);
+                html += row("Экраны", data.screens);
+                html += row("Фокусное расстояние F", withUnit(data.ffd, "мм"));
+                html += row("Расстояние источник–объект", withUnit(data.sod, "мм"));
+                html += row("Режим (кВ·мА)", data.kv);
+                html += row("Время экспозиции", data.expTime);
+                html += row("Оптическая плотность", data.density);
+                html += row("НД / методика", data.ndRef);
+                html += row("Примечания", data.notes);
+                docTable.innerHTML = html;
+
+                signOp.textContent = [data.operator, data.level ? ("ур. " + data.level) : ""].filter(Boolean).join(", ");
+                signAp.textContent = data.approver || "";
+            }
+
+            function refresh() {
+                const data = collect();
+                Object.keys(sectionRequired).forEach(updateSectionStatus);
+                updateSticky(data);
+                renderPreview(data);
+                saveDraft();
+            }
+
+            function validateForPrint() {
+                let firstInvalid = null;
+                const requiredIds = ["org", "cardNo", "objectName", "jointId", "material", "thickness", "radiation", "scheme", "ffd"];
+                requiredIds.forEach(function (id) {
+                    const ok = !!val(id);
+                    markFieldError(id, !ok);
+                    if (!ok && !firstInvalid) firstInvalid = el(id);
+                });
+                if (firstInvalid) {
+                    const details = firstInvalid.closest("details");
+                    if (details) details.open = true;
+                    firstInvalid.focus();
+                    return false;
+                }
+                return true;
+            }
+
+            function resetForm() {
+                form.reset();
+                if (!val("cardDate")) setVal("cardDate", todayISO());
+                if (!val("ndRef")) setVal("ndRef", "ГОСТ Р 50.05.07-2018");
+                if (!val("exposures")) setVal("exposures", "1");
+                fields.forEach(function (id) { markFieldError(id, false); });
+                try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+                refresh();
+            }
+
+            form.addEventListener("input", refresh);
+            form.addEventListener("change", refresh);
+
+            document.getElementById("btnPrint").addEventListener("click", function () {
+                if (!validateForPrint()) return;
+                refresh();
+                window.print();
+            });
+
+            document.getElementById("btnReset").addEventListener("click", function () {
+                if (window.confirm("Сбросить все поля техкарты?")) resetForm();
+            });
+
+            document.getElementById("btnScrollForm").addEventListener("click", function () {
+                document.getElementById("form-heading").scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+
+            // One-open accordion behaviour (keeps one section open for focus)
+            form.querySelectorAll("details.section").forEach(function (d) {
+                d.addEventListener("toggle", function () {
+                    if (!d.open) return;
+                    form.querySelectorAll("details.section").forEach(function (other) {
+                        if (other !== d) other.open = false;
+                    });
+                });
+            });
+
+            const loaded = loadDraft();
+            if (!loaded) {
+                setVal("cardDate", todayISO());
+            } else if (!val("cardDate")) {
+                setVal("cardDate", todayISO());
+            }
+            refresh();
+        })();
+    </script>
+</body>
+</html>
