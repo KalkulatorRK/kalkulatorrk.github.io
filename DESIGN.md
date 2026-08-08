@@ -19,6 +19,7 @@ colors:
   danger-soft: "#fff8f8"
   ok: "#0f5c38"
   warn: "#7a4b00"
+  print-ink: "#000000"
 typography:
   ui:
     fontFamily: "Source Sans 3, Segoe UI, sans-serif"
@@ -69,6 +70,17 @@ typography:
   helper:
     fontFamily: "Source Sans 3, Segoe UI, sans-serif"
     fontSize: "0.88rem"
+  doc-title:
+    fontFamily: "Source Sans 3, Segoe UI, sans-serif"
+    fontSize: "1.05rem"
+    fontWeight: 700
+  doc-body:
+    fontFamily: "Source Sans 3, Segoe UI, sans-serif"
+    fontSize: "0.82rem"
+  page-title-mobile:
+    fontFamily: "Source Sans 3, Segoe UI, sans-serif"
+    fontSize: "1.2rem"
+    fontWeight: 700
 rounded:
   xs: "4px"
   control: "6px"
